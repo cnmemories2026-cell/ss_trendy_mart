@@ -1,4 +1,4 @@
-// Initial Catalog for SS Trendy Mart with Color Variant Stock Breakdown
+// Initial Catalog for SS Trendy Mart with Extracted Product Images & Color Variant Stock Breakdown
 // Categories: Mobile Charm, Bracelet, Toys, Miniature, Keychain, Watch
 
 export const OFFICIAL_CATEGORIES = [
@@ -22,41 +22,20 @@ export const generateProductSvg = (id, color1 = '#5C3A21', color2 = '#D4A373', c
   else if (categoryName === 'Watch') categoryIcon = '⌚';
 
   return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
-    <defs>
-      <linearGradient id="bgGrad${id}" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="%23FDF8F2" />
-        <stop offset="50%" stop-color="%23F5EBE1" />
-        <stop offset="100%" stop-color="%23EADBC8" />
-      </linearGradient>
-      <linearGradient id="itemGrad${id}" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="${encodeURIComponent(color1)}" />
-        <stop offset="100%" stop-color="${encodeURIComponent(color2)}" />
-      </linearGradient>
-      <filter id="shadow${id}" x="-20%" y="-20%" width="140%" height="140%">
-        <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="%235C3A21" flood-opacity="0.18" />
-      </filter>
-    </defs>
-    
-    <rect width="600" height="600" fill="url(%23bgGrad${id})" />
-    <rect x="50" y="50" width="500" height="500" rx="40" fill="%23FFFDF9" stroke="%235C3A21" stroke-width="5" stroke-dasharray="10 8" filter="url(%23shadow${id})"/>
+    <rect width="600" height="600" fill="%23FDF8F2" />
+    <rect x="50" y="50" width="500" height="500" rx="40" fill="%23FFFDF9" stroke="%235C3A21" stroke-width="5" stroke-dasharray="10 8"/>
     <circle cx="300" cy="270" r="150" fill="%23F5EBE1" opacity="0.6"/>
-
-    <ellipse cx="300" cy="360" rx="140" ry="60" fill="url(%23itemGrad${id})" filter="url(%23shadow${id})"/>
-    <ellipse cx="300" cy="345" rx="120" ry="45" fill="%23FFFFFF" opacity="0.3"/>
-
-    <circle cx="300" cy="240" r="85" fill="url(%23itemGrad${id})" filter="url(%23shadow${id})"/>
-    <circle cx="280" cy="215" r="22" fill="%23FFFFFF" opacity="0.25"/>
-    
+    <ellipse cx="300" cy="360" rx="140" ry="60" fill="%235C3A21" />
+    <circle cx="300" cy="240" r="85" fill="%23D4A373" />
     <text x="300" y="260" font-family="sans-serif" font-size="65" text-anchor="middle">${categoryIcon}</text>
-    
     <path d="M 180 430 Q 300 420 420 430 L 400 475 Q 300 465 200 475 Z" fill="%235C3A21" />
     <text x="300" y="458" font-family="Georgia, serif" font-size="22" font-weight="bold" fill="%23FDF8F2" text-anchor="middle">Product ${num}</text>
   </svg>`;
 };
 
-// Initial PDF catalog items (44 products + updated screenshot items with color variant stock)
+// Initial Catalog Items mapped to extracted image files (page_1.jpg to page_80.jpg)
 export const initialProducts = [
-  // Screenshot Products
+  // Screenshot Items
   {
     id: 'prod_39',
     pdfCode: 'PDF-39',
@@ -66,7 +45,7 @@ export const initialProducts = [
     variants: [
       { color: 'green', qty: 3 },
       { color: 'purple', qty: 2 },
-      { color: 'Peach', qty: 2 },
+      { color: 'peach', qty: 2 },
       { color: 'blue', qty: 1 },
       { color: 'orange', qty: 3 },
       { color: 'yellow', qty: 3 },
@@ -74,7 +53,7 @@ export const initialProducts = [
     ],
     stock: 16,
     soldCount: 0,
-    image: generateProductSvg(39, '#5C3A21', '#D4A373', 'Miniature'),
+    image: '/products/page_39.jpg',
     description: 'Miniature translucent dolphin craft figures in multiple pastel colors.',
     available: true
   },
@@ -90,7 +69,7 @@ export const initialProducts = [
     ],
     stock: 2,
     soldCount: 0,
-    image: generateProductSvg(40, '#3D2314', '#C49A6C', 'Miniature'),
+    image: '/products/page_40.jpg',
     description: 'Cute sleeping panda figurine with radian finish.',
     available: true
   },
@@ -110,7 +89,7 @@ export const initialProducts = [
     ],
     stock: 16,
     soldCount: 0,
-    image: generateProductSvg(41, '#8C5221', '#E0A96D', 'Toys'),
+    image: '/products/page_41.jpg',
     description: 'Adorable panda figures holding bamboo with radian glow.',
     available: true
   },
@@ -132,7 +111,7 @@ export const initialProducts = [
     ],
     stock: 13,
     soldCount: 0,
-    image: generateProductSvg(42, '#6B4423', '#D9B48F', 'Toys'),
+    image: '/products/page_42.jpg',
     description: 'Cute mini pomeranian & bulldog puppy figurines in colorful variants.',
     available: true
   },
@@ -152,7 +131,7 @@ export const initialProducts = [
     ],
     stock: 11,
     soldCount: 0,
-    image: generateProductSvg(43, '#4A2E1B', '#B8860B', 'Mobile Charm'),
+    image: '/products/page_43.jpg',
     description: 'Chubby translucent jelly bunny figurines holding carrots.',
     available: true
   },
@@ -172,7 +151,7 @@ export const initialProducts = [
     ],
     stock: 17,
     soldCount: 0,
-    image: generateProductSvg(44, '#7A4B29', '#E6C280', 'Keychain'),
+    image: '/products/page_44.jpg',
     description: 'Colorful aquatic fish figurines with crystal sheen.',
     available: true
   },
@@ -188,48 +167,38 @@ export const initialProducts = [
     ],
     stock: 4,
     soldCount: 0,
-    image: generateProductSvg(46, '#5C3A21', '#D4A373', 'Watch'),
+    image: '/products/page_46.jpg',
     description: 'Car dashboard miniature decor accessory set.',
     available: true
   },
 
-  // Remaining catalog items (Product 01 to Product 38)
-  ...Array.from({ length: 38 }, (_, i) => {
+  // 80 Extracted PDF Items mapped directly to extracted image paths
+  ...Array.from({ length: 80 }, (_, i) => {
     const idNum = i + 1;
     const formattedId = idNum < 10 ? `0${idNum}` : `${idNum}`;
     const categoryIndex = i % OFFICIAL_CATEGORIES.length;
     const category = OFFICIAL_CATEGORIES[categoryIndex];
 
-    const colors = [
-      ['#5C3A21', '#D4A373'],
-      ['#8C5221', '#E0A96D'],
-      ['#3D2314', '#C49A6C'],
-      ['#6B4423', '#D9B48F'],
-      ['#4A2E1B', '#B8860B'],
-      ['#7A4B29', '#E6C280']
-    ];
-    const colorPair = colors[i % colors.length];
-
     return {
-      id: `prod_${formattedId}`,
+      id: `prod_page_${formattedId}`,
       pdfCode: `PDF-${formattedId}`,
-      name: `Product ${formattedId}`,
+      name: `Catalog Product ${formattedId}`,
       category: category,
-      price: 150 + (i % 8) * 40,
+      price: 120 + (i % 10) * 35,
       variants: [
-        { color: 'pink', qty: 5 },
-        { color: 'blue', qty: 5 },
-        { color: 'yellow', qty: 5 },
-        { color: 'green', qty: 5 }
+        { color: 'pink', qty: 4 },
+        { color: 'blue', qty: 4 },
+        { color: 'yellow', qty: 4 },
+        { color: 'green', qty: 4 }
       ],
-      stock: 20,
+      stock: 16,
       soldCount: 0,
-      image: generateProductSvg(idNum, colorPair[0], colorPair[1], category),
+      image: `/products/page_${idNum}.jpg`,
       video: null,
       instagramVideoUrl: '',
       description: `Official ${category} item from SS Trendy Mart catalog (Page ${idNum}). Hand crafted design.`,
       available: true,
-      featured: [1, 2, 5, 8, 12, 18, 24, 30].includes(idNum),
+      featured: [1, 3, 5, 8, 12, 18, 24, 30, 45, 60].includes(idNum),
       createdAt: new Date(Date.now() - i * 3600000).toISOString()
     };
   })
