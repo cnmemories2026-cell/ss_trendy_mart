@@ -101,7 +101,7 @@ export const AdminProducts = () => {
   const handleOpenAddModal = () => {
     setEditingProduct(null);
     setFormData({
-      name: `Product ${String(products.length + 1).padStart(2, '0')}`,
+      name: '', // COMPLETELY EMPTY by default! No pre-filled "Product 45" text!
       category: storeCategories[0] || 'Mobile Charm',
       price: '',
       stock: '',
