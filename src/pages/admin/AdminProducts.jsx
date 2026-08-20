@@ -102,97 +102,47 @@ export const AdminProducts = () => {
     setEditingProduct(null);
     setFormData({
       name: `Product ${String(products.length + 1).padStart(2, '0')}`,
-      pdfCode: `PDF-${String(products.length + 1).padStart(2, '0')}`,
-      category: storeCategories[0] || 'Mobile Charm',
-      price: '',
-      colorsList: [
-        { name: 'Pink', stock: 5 },
-        { name: 'Blue', stock: 3 }
-      ],
-      stock: 8,
-      image: '',
-      video: null,
-      instagramVideoUrl: '',
-      description: 'Original catalog product from SS Trendy Mart.',
-      available: true
+      image: '/products/page_1.jpg'
     });
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (product) => {
     setEditingProduct(product);
-    const existingNormColors = getNormalizedColors(product);
-
     setFormData({
-      name: product.name,
-      pdfCode: product.pdfCode || '',
-      category: product.category || storeCategories[0] || 'Mobile Charm',
-      price: product.price || '',
-      colorsList: existingNormColors.length > 0 ? existingNormColors : [],
-      stock: getProductTotalStock(product),
-      image: product.image || '',
-      video: product.video || null,
-      instagramVideoUrl: product.instagramVideoUrl || '',
-      description: product.description || '',
-      available: product.available !== false
+      name: product.name || '',
+      image: product.image || ''
     });
     setIsModalOpen(true);
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name.trim()) {
-      alert('Product name is required');
+    if (!formData.image && !editingProduct) {
+      alert('Please select or upload a product image.');
       return;
     }
-
-    // Validation 1: Color cannot be empty
-    if (formData.colorsList.some(c => !c.name.trim())) {
-      alert('Colour names cannot be empty.');
-      return;
-    }
-
-    // Validation 2: Stock cannot be negative
-    if (formData.colorsList.some(c => Number(c.stock) < 0)) {
-      alert('Colour stock cannot be negative.');
-      return;
-    }
-
-    // Validation 3: Duplicate colour entries not allowed
-    const colorNamesClean = formData.colorsList.map(c => c.name.trim().toLowerCase());
-    if (new Set(colorNamesClean).size !== colorNamesClean.length) {
-      alert('Duplicate colour entries are not allowed for the same product.');
-      return;
-    }
-
-    const cleanColorsList = formData.colorsList.map(c => ({
-      name: c.name.trim(),
-      stock: Number(c.stock) || 0
-    }));
-
-    // Requirement 9: Do NOT maintain one common stock number when colour variants are enabled
-    const computedTotalStock = cleanColorsList.length > 0
-      ? cleanColorsList.reduce((sum, c) => sum + c.stock, 0)
-      : (Number(formData.stock) || 0);
-
-    const productPayload = {
-      name: formData.name.trim(),
-      pdfCode: formData.pdfCode.trim(),
-      category: formData.category,
-      price: formData.price !== '' ? Number(formData.price) : null,
-      colors: cleanColorsList,
-      stock: computedTotalStock,
-      image: formData.image || (editingProduct ? editingProduct.image : '/products/page_1.jpg'),
-      video: formData.video,
-      instagramVideoUrl: formData.instagramVideoUrl,
-      description: formData.description,
-      available: formData.available && computedTotalStock > 0
-    };
 
     if (editingProduct) {
-      updateProduct(editingProduct.id, productPayload);
+      // REQUIREMENT: Preserve ALL existing product data (price, stock, colors, category, pdfCode, description)
+      // Update ONLY the image-related functionality
+      updateProduct(editingProduct.id, {
+        ...editingProduct,
+        name: formData.name.trim() || editingProduct.name,
+        image: formData.image || editingProduct.image
+      });
     } else {
-      addProduct(productPayload);
+      addProduct({
+        name: formData.name.trim() || `Product ${String(products.length + 1).padStart(2, '0')}`,
+        pdfCode: `PDF-${String(products.length + 1).padStart(2, '0')}`,
+        category: storeCategories[0] || 'Mobile Charm',
+        price: null,
+        colors: [],
+        stock: 20,
+        image: formData.image || '/products/page_1.jpg',
+        description: 'Original catalog product.',
+        available: true
+      });
     }
 
     setIsModalOpen(false);
@@ -419,14 +369,14 @@ export const AdminProducts = () => {
         </div>
       </div>
 
-      {/* Add / Edit Product Modal */}
+      {/* Add / Edit Product Modal (IMAGE-ONLY FORM) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl animate-fade-in">
             
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
               <h3 className="text-lg font-black text-gray-900">
-                {editingProduct ? `Edit ${editingProduct.name}` : 'Add New Product'}
+                {editingProduct ? `Update Image – ${editingProduct.name}` : 'Add Product Image'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="p-1 text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
@@ -435,256 +385,93 @@ export const AdminProducts = () => {
 
             <form onSubmit={handleFormSubmit} className="space-y-4">
               
-              {/* Product Name */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Product Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g. Product 01 or Miniature Bunny Set"
-                  className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none"
-                />
-              </div>
-
-              {/* Price, Stock & SKU */}
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">
-                    Price (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="e.g. 150 (or blank)"
-                    className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none"
-                  />
+              {/* Product Info Summary */}
+              {editingProduct ? (
+                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-extrabold text-brand-600 uppercase tracking-widest block">Product Name:</span>
+                    <h4 className="text-sm font-black text-gray-900">{editingProduct.name}</h4>
+                  </div>
+                  <span className="text-[10px] font-bold text-gray-500 bg-white px-2 py-1 rounded-md border border-gray-200">
+                    {editingProduct.pdfCode || 'Catalog Item'}
+                  </span>
                 </div>
-
+              ) : (
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">Stock Qty *</label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none font-bold"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">PDF Code</label>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Product Name</label>
                   <input
                     type="text"
-                    value={formData.pdfCode}
-                    onChange={(e) => setFormData({ ...formData, pdfCode: e.target.value })}
-                    placeholder="e.g. PDF-01"
-                    className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Enter product name..."
+                    className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>
-              </div>
+              )}
 
-              {/* Category Dropdown */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">Category</label>
-                  <button
-                    type="button"
-                    onClick={() => setIsCategoryModalOpen(true)}
-                    className="text-[11px] font-bold text-purple-700 hover:underline"
-                  >
-                    + Add New Category
-                  </button>
-                </div>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none font-semibold text-gray-800"
-                >
-                  {storeCategories.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
+              {/* IMAGE FUNCTIONALITY ONLY */}
+              <div className="p-4 bg-peach-50/50 rounded-2xl border border-orange-100 space-y-4">
+                <label className="block text-xs font-extrabold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <ImageIcon className="w-4 h-4 text-brand-600" /> Product Image
+                </label>
 
-              {/* REQUIREMENT 7 & 8: COLOUR & STOCK SECTION */}
-              <div className="p-4 bg-purple-50/50 rounded-2xl border border-purple-100 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-extrabold text-purple-950 uppercase tracking-wider">
-                    🎨 Colour & Stock Management
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleAddColorRow}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Add Colour Variant
-                  </button>
-                </div>
-                <p className="text-[11px] text-purple-800">
-                  Set independent stock quantity for each colour option. The system will track stock per colour variant separately.
-                </p>
-
-                {formData.colorsList && formData.colorsList.length > 0 ? (
-                  <div className="space-y-2 max-h-52 overflow-y-auto custom-scrollbar pt-1">
-                    {formData.colorsList.map((col, idx) => (
-                      <div key={idx} className="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-purple-100 shadow-sm">
-                        <div className="flex-1">
-                          <input
-                            type="text"
-                            placeholder="Colour Name (e.g. Green)"
-                            value={col.name}
-                            onChange={(e) => handleColorChange(idx, 'name', e.target.value)}
-                            className="w-full px-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg font-bold focus:bg-white focus:border-brand-500 focus:outline-none"
-                          />
-                        </div>
-                        <div className="flex items-center gap-1 w-32">
-                          <span className="text-[10px] font-bold text-gray-500">Stock:</span>
-                          <input
-                            type="number"
-                            min="0"
-                            placeholder="0"
-                            value={col.stock}
-                            onChange={(e) => handleColorChange(idx, 'stock', e.target.value)}
-                            className="w-full px-2 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg font-black text-center focus:bg-white focus:border-brand-500 focus:outline-none"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveColorRow(idx)}
-                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Remove Colour"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <div className="text-[11px] font-bold text-purple-900 pt-1 text-right">
-                      Total Variant Stock: {formData.colorsList.reduce((sum, c) => sum + (Number(c.stock) || 0), 0)} units
+                {/* 1. Existing Image Preview & Upload / Replace Button */}
+                {formData.image ? (
+                  <div className="space-y-3 text-center">
+                    <div className="relative aspect-square max-w-xs mx-auto bg-white rounded-2xl p-2 border border-gray-200 shadow-sm flex items-center justify-center overflow-hidden">
+                      <img
+                        src={formData.image}
+                        alt="Current Product Preview"
+                        className="max-w-full max-h-full object-contain rounded-xl"
+                      />
+                    </div>
+                    <div className="flex items-center justify-center gap-3">
+                      <label className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-sm transition-all">
+                        <Upload className="w-4 h-4" /> Replace Image (Device File)
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/jpg"
+                          onChange={handleImageFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, image: '' })}
+                        className="px-3 py-2 text-xs text-red-600 font-bold hover:bg-red-50 rounded-xl transition-colors"
+                      >
+                        Remove
+                      </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3 bg-white rounded-xl border border-dashed border-purple-200 text-center text-xs text-gray-400">
-                    No colour variants added. Single general product stock will apply.
+                  <div className="text-center py-6 border-2 border-dashed border-orange-200 bg-white rounded-2xl space-y-3">
+                    <ImageIcon className="w-10 h-10 text-brand-400 mx-auto" />
+                    <p className="text-xs text-gray-500 font-medium">No image loaded for this product</p>
+                    <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-md transition-all">
+                      <Upload className="w-4 h-4" /> Upload Image File
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/jpg"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
                 )}
-              </div>
 
-              {/* 1. DIRECT PRODUCT IMAGE UPLOAD FROM DEVICE */}
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-3">
-                <label className="block text-xs font-extrabold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <ImageIcon className="w-4 h-4 text-brand-600" /> Upload Product Image (Direct Device File)
-                </label>
-                <p className="text-[11px] text-gray-500">Supports JPG, JPEG, PNG, WEBP format.</p>
-
-                <div className="flex items-center gap-4">
-                  <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-sm transition-all">
-                    <Upload className="w-4 h-4" /> Select Image File
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/jpg"
-                      onChange={handleImageFileChange}
-                      className="hidden"
-                    />
-                  </label>
-                  {formData.image && (
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, image: '' })}
-                      className="text-xs text-red-600 font-bold hover:underline"
-                    >
-                      Delete Image
-                    </button>
-                  )}
+                {/* 2. Direct Image URL Input */}
+                <div className="pt-2">
+                  <label className="block text-[11px] font-bold text-gray-600 mb-1">Image URL Path:</label>
+                  <input
+                    type="text"
+                    value={formData.image}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    placeholder="e.g. /products/page_1.jpg or https://..."
+                    className="w-full px-3.5 py-2 text-xs bg-white border border-gray-200 rounded-xl focus:border-brand-500 focus:outline-none"
+                  />
                 </div>
-
-                {/* Preview Thumbnail */}
-                {formData.image && (
-                  <div className="flex items-center gap-3 pt-2">
-                    <img src={formData.image} alt="Preview" className="w-16 h-16 rounded-xl object-cover border" />
-                    <span className="text-xs text-emerald-600 font-bold">Image Loaded & Ready!</span>
-                  </div>
-                )}
-              </div>
-
-              {/* 2. DIRECT PRODUCT VIDEO UPLOAD FROM DEVICE (OPTIONAL) */}
-              <div className="p-4 bg-purple-50/60 rounded-2xl border border-purple-100 space-y-3">
-                <label className="block text-xs font-extrabold text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <Video className="w-4 h-4 text-purple-600" /> Product Video (Optional Direct Device Upload)
-                </label>
-                <p className="text-[11px] text-purple-700">Supports MP4, WEBM, MOV format.</p>
-
-                <div className="flex items-center gap-4">
-                  <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs rounded-xl cursor-pointer shadow-sm transition-all">
-                    <Upload className="w-4 h-4" /> Select Video File
-                    <input
-                      type="file"
-                      accept="video/mp4,video/webm,video/ogg,video/quicktime"
-                      onChange={handleVideoFileChange}
-                      className="hidden"
-                    />
-                  </label>
-                  {formData.video && (
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, video: null })}
-                      className="text-xs text-red-600 font-bold hover:underline"
-                    >
-                      Delete Video
-                    </button>
-                  )}
-                </div>
-
-                {/* Preview Video */}
-                {formData.video && (
-                  <div className="pt-2 space-y-1">
-                    <span className="text-xs text-purple-800 font-bold block">Video Preview:</span>
-                    <video src={formData.video} controls className="w-full max-h-40 rounded-xl border bg-black" />
-                  </div>
-                )}
-              </div>
-
-              {/* 3. OPTIONAL INSTAGRAM REEL / VIDEO LINK */}
-              <div className="p-4 bg-pink-50/60 rounded-2xl border border-pink-100 space-y-2">
-                <label className="block text-xs font-extrabold text-pink-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <Instagram className="w-4 h-4 text-pink-600" /> Instagram Reel / Video Link (Optional)
-                </label>
-                <input
-                  type="url"
-                  value={formData.instagramVideoUrl}
-                  onChange={(e) => setFormData({ ...formData, instagramVideoUrl: e.target.value })}
-                  placeholder="e.g. https://www.instagram.com/reel/C3xyz..."
-                  className="w-full px-4 py-2.5 text-xs bg-white border border-pink-200 rounded-xl focus:outline-none"
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Description</label>
-                <textarea
-                  rows="3"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Enter product description..."
-                  className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none"
-                />
-              </div>
-
-              {/* Availability Toggle */}
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="availCheck"
-                  checked={formData.available}
-                  onChange={(e) => setFormData({ ...formData, available: e.target.checked })}
-                  className="w-4 h-4 text-brand-600 rounded border-gray-300 focus:ring-brand-500"
-                />
-                <label htmlFor="availCheck" className="text-xs font-bold text-gray-700 cursor-pointer">
-                  Product is Available & Visible on Website
-                </label>
               </div>
 
               {/* Submit Buttons */}
@@ -700,7 +487,7 @@ export const AdminProducts = () => {
                   type="submit"
                   className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-extrabold shadow-md"
                 >
-                  {editingProduct ? 'Save Product Changes' : 'Create Product'}
+                  {editingProduct ? 'Update Image' : 'Save Image'}
                 </button>
               </div>
 
