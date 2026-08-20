@@ -5,14 +5,15 @@ import { getNormalizedColors, getProductTotalStock, getColorStock } from '../uti
 const StoreContext = createContext();
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'ss_trendy_mart_products_v4',
-  CART: 'ss_trendy_mart_cart_v4',
-  ORDERS: 'ss_trendy_mart_orders_v4',
-  COUPONS: 'ss_trendy_mart_coupons_v4',
-  APPLIED_COUPON: 'ss_trendy_mart_applied_coupon_v4',
-  POS_SALES: 'ss_trendy_mart_pos_sales_v4',
-  ADMIN_AUTH: 'ss_trendy_mart_admin_auth_v4',
-  SETTINGS: 'ss_trendy_mart_settings_v4'
+  PRODUCTS: 'ss_trendy_mart_products_v5',
+  CART: 'ss_trendy_mart_cart_v5',
+  ORDERS: 'ss_trendy_mart_orders_v5',
+  COUPONS: 'ss_trendy_mart_coupons_v5',
+  APPLIED_COUPON: 'ss_trendy_mart_applied_coupon_v5',
+  POS_SALES: 'ss_trendy_mart_pos_sales_v5',
+  ADMIN_AUTH: 'ss_trendy_mart_admin_auth_v5',
+  SETTINGS: 'ss_trendy_mart_settings_v5',
+  CATEGORIES: 'ss_trendy_mart_categories_v5'
 };
 
 const INITIAL_COUPONS = [
@@ -24,6 +25,19 @@ const INITIAL_COUPONS = [
 export const StoreProvider = ({ children }) => {
   const DEFAULT_CATEGORIES = ['Mobile Charm', 'Bracelet', 'Toys', 'Miniature', 'Keychain', 'Watch'];
 
+  // Clean legacy local storage cache keys (v1, v2, v3, v4) to prevent old mobile browser cache conflicts
+  useEffect(() => {
+    try {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('ss_trendy_mart_') && !key.endsWith('_v5')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (e) {
+      console.error('Error clearing old cache keys:', e);
+    }
+  }, []);
+
   // 1. Products State (Loaded with extracted product images page_1.jpg to page_44.jpg)
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
@@ -31,13 +45,17 @@ export const StoreProvider = ({ children }) => {
       try { 
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Replace any old SVG placeholder images with extracted real page images
           return parsed.map((p, idx) => {
             const pageNum = (idx % 44) + 1;
-            if (!p.image || p.image.includes('data:image/svg') || p.image.includes('placeholder')) {
-              return { ...p, image: `/products/page_${pageNum}.jpg` };
-            }
-            return p;
+            const normColors = getNormalizedColors(p);
+            const imgPath = (!p.image || p.image.includes('data:image/svg') || p.image.includes('placeholder'))
+              ? `/products/page_${pageNum}.jpg`
+              : p.image;
+            return {
+              ...p,
+              image: imgPath,
+              colors: normColors
+            };
           });
         }
       } catch (e) { console.error(e); }
@@ -47,7 +65,7 @@ export const StoreProvider = ({ children }) => {
 
   // Dynamic Store Categories State
   const [categories, setCategories] = useState(() => {
-    const saved = localStorage.getItem('ss_trendy_mart_categories_v4');
+    const saved = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { console.error(e); }
     }
@@ -55,7 +73,7 @@ export const StoreProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    localStorage.setItem('ss_trendy_mart_categories_v4', JSON.stringify(categories));
+    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
   }, [categories]);
 
   const addCategory = (name) => {
