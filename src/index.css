@@ -33,6 +33,11 @@
   border: 1px solid rgba(217, 185, 155, 0.6);
 }
 
+.custom-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
