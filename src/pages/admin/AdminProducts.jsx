@@ -79,7 +79,7 @@ export const AdminProducts = () => {
   const handleAddColorRow = () => {
     setFormData(prev => ({
       ...prev,
-      colorsList: [...prev.colorsList, { name: '', stock: 5 }]
+      colorsList: [...prev.colorsList, { name: '', stock: '' }]
     }));
   };
 
