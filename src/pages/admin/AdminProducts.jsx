@@ -102,7 +102,7 @@ export const AdminProducts = () => {
     setEditingProduct(null);
     setFormData({
       name: `Product ${String(products.length + 1).padStart(2, '0')}`,
-      image: '/products/page_1.jpg'
+      image: ''
     });
     setIsModalOpen(true);
   };
@@ -118,10 +118,6 @@ export const AdminProducts = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    if (!formData.image && !editingProduct) {
-      alert('Please select or upload a product image.');
-      return;
-    }
 
     if (editingProduct) {
       // REQUIREMENT: Preserve ALL existing product data (price, stock, colors, category, pdfCode, description)
@@ -132,6 +128,10 @@ export const AdminProducts = () => {
         image: formData.image || editingProduct.image
       });
     } else {
+      if (!formData.image) {
+        alert('Please select or upload an image for the new product.');
+        return;
+      }
       addProduct({
         name: formData.name.trim() || `Product ${String(products.length + 1).padStart(2, '0')}`,
         pdfCode: `PDF-${String(products.length + 1).padStart(2, '0')}`,
@@ -139,7 +139,7 @@ export const AdminProducts = () => {
         price: null,
         colors: [],
         stock: 20,
-        image: formData.image || '/products/page_1.jpg',
+        image: formData.image,
         description: 'Original catalog product.',
         available: true
       });
