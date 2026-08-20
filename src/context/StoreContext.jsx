@@ -25,51 +25,54 @@ const INITIAL_COUPONS = [
 export const StoreProvider = ({ children }) => {
   const DEFAULT_CATEGORIES = ['Mobile Charm', 'Bracelet', 'Toys', 'Miniature', 'Keychain', 'Watch'];
 
-  // Clean legacy local storage cache keys (v1, v2, v3, v4) to prevent old mobile browser cache conflicts
-  useEffect(() => {
+  // Helper to load and seamlessly migrate saved user data from any previous key version
+  const loadSavedData = (currentKey, keyPrefix, defaultValue) => {
     try {
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('ss_trendy_mart_') && !key.endsWith('_v5')) {
-          localStorage.removeItem(key);
+      // 1. Check current key first
+      const saved = localStorage.getItem(currentKey);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+      // 2. Check all existing localStorage keys for any previous version saved by user
+      const legacyKey = Object.keys(localStorage).find(k => k.startsWith(keyPrefix) && localStorage.getItem(k));
+      if (legacyKey) {
+        const legacyData = localStorage.getItem(legacyKey);
+        if (legacyData) {
+          const parsed = JSON.parse(legacyData);
+          // Copy to current key so future reads use current key
+          localStorage.setItem(currentKey, JSON.stringify(parsed));
+          return parsed;
         }
-      });
+      }
     } catch (e) {
-      console.error('Error clearing old cache keys:', e);
+      console.error(`Error migrating saved key ${currentKey}:`, e);
     }
-  }, []);
+    return defaultValue;
+  };
 
-  // 1. Products State (Loaded with extracted product images page_1.jpg to page_44.jpg)
+  // 1. Products State (Preserves ALL user-edited prices, images, stock, descriptions, and custom products)
   const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-    if (saved) {
-      try { 
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((p, idx) => {
-            const pageNum = (idx % 44) + 1;
-            const normColors = getNormalizedColors(p);
-            const imgPath = (!p.image || p.image.includes('data:image/svg') || p.image.includes('placeholder'))
-              ? `/products/page_${pageNum}.jpg`
-              : p.image;
-            return {
-              ...p,
-              image: imgPath,
-              colors: normColors
-            };
-          });
-        }
-      } catch (e) { console.error(e); }
+    const savedList = loadSavedData(STORAGE_KEYS.PRODUCTS, 'ss_trendy_mart_products_', null);
+    if (Array.isArray(savedList) && savedList.length > 0) {
+      return savedList.map((p, idx) => {
+        const pageNum = (idx % 44) + 1;
+        const normColors = getNormalizedColors(p);
+        const imgPath = (!p.image || p.image.includes('data:image/svg') || p.image.includes('placeholder'))
+          ? `/products/page_${pageNum}.jpg`
+          : p.image;
+        return {
+          ...p,
+          image: imgPath,
+          colors: normColors
+        };
+      });
     }
     return initialProducts;
   });
 
-  // Dynamic Store Categories State
+  // Dynamic Store Categories State (Preserves user added/deleted categories)
   const [categories, setCategories] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return DEFAULT_CATEGORIES;
+    return loadSavedData(STORAGE_KEYS.CATEGORIES, 'ss_trendy_mart_categories_', DEFAULT_CATEGORIES);
   });
 
   useEffect(() => {
@@ -92,69 +95,46 @@ export const StoreProvider = ({ children }) => {
     setCategories(prev => prev.filter(c => c !== name));
   };
 
-  // 2. Cart State
+  // 2. Cart State (Preserves active cart)
   const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CART);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return [];
+    return loadSavedData(STORAGE_KEYS.CART, 'ss_trendy_mart_cart_', []);
   });
 
-  // 3. Coupons State
+  // 3. Coupons State (Preserves custom coupons)
   const [coupons, setCoupons] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.COUPONS);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return INITIAL_COUPONS;
+    return loadSavedData(STORAGE_KEYS.COUPONS, 'ss_trendy_mart_coupons_', INITIAL_COUPONS);
   });
 
   // 4. Applied Coupon State
   const [appliedCoupon, setAppliedCoupon] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.APPLIED_COUPON);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return null;
+    return loadSavedData(STORAGE_KEYS.APPLIED_COUPON, 'ss_trendy_mart_applied_coupon_', null);
   });
 
-  // 5. Orders State (Website Orders)
+  // 5. Orders State (Preserves website orders created by user/customers)
   const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.ORDERS);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return [];
+    return loadSavedData(STORAGE_KEYS.ORDERS, 'ss_trendy_mart_orders_', []);
   });
 
-  // 6. POS Sales History State
+  // 6. POS Sales History State (Preserves counter sales history created by user)
   const [posSales, setPosSales] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.POS_SALES);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return [];
+    return loadSavedData(STORAGE_KEYS.POS_SALES, 'ss_trendy_mart_pos_sales_', []);
   });
 
   // 7. Admin Auth State
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
-    return localStorage.getItem(STORAGE_KEYS.ADMIN_AUTH) === 'true';
+    const authVal = loadSavedData(STORAGE_KEYS.ADMIN_AUTH, 'ss_trendy_mart_admin_auth_', false);
+    return authVal === true || localStorage.getItem(STORAGE_KEYS.ADMIN_AUTH) === 'true';
   });
 
-  // 8. Store Settings State (with Instagram profile link support)
+  // 8. Store Settings State (Preserves custom phone number, password, store name, Instagram link)
   const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return {
+    return loadSavedData(STORAGE_KEYS.SETTINGS, 'ss_trendy_mart_settings_', {
       storeName: 'SS Trendy Mart',
       ownerPhone: '9342044060',
       tagline: 'Hand Crafted • Trendy Products. Easy Shopping.',
       adminPassword: 'ChaNish@1724',
       instagramProfileUrl: 'https://instagram.com/sstrendymart'
-    };
+    });
   });
 
   // Persist State
