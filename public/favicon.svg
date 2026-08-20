@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#FAF5EC" stroke="#C29249" stroke-width="2"/>
+  <circle cx="50" cy="50" r="44" fill="none" stroke="#6D4827" stroke-width="1" stroke-dasharray="2 2"/>
+  <!-- Teddy Head -->
+  <circle cx="39" cy="38" r="7" fill="#EEDAC5" stroke="#462B14" stroke-width="1"/>
+  <circle cx="61" cy="38" r="7" fill="#EEDAC5" stroke="#462B14" stroke-width="1"/>
+  <ellipse cx="50" cy="46" rx="16" ry="14" fill="#EEDAC5" stroke="#462B14" stroke-width="1.2"/>
+  <ellipse cx="50" cy="48" rx="7" ry="5.5" fill="#FBF3EA" stroke="#A97E59" stroke-width="0.8"/>
+  <ellipse cx="50" cy="46.5" rx="2.5" ry="1.8" fill="#3D2109"/>
+  <circle cx="44" cy="44" r="1.5" fill="#3D2109"/>
+  <circle cx="56" cy="44" r="1.5" fill="#3D2109"/>
+  <!-- Gift Box -->
+  <rect x="42" y="60" width="16" height="15" fill="#FFF9F2" stroke="#462B14" stroke-width="1.2"/>
+  <line x1="50" y1="60" x2="50" y2="75" stroke="#C29249" stroke-width="2"/>
+  <line x1="42" y1="67" x2="58" y2="67" stroke="#C29249" stroke-width="2"/>
+  <!-- Bottom Ribbon -->
+  <rect x="15" y="80" width="70" height="13" rx="2" fill="#552C12"/>
+  <text x="50" y="90" font-family="sans-serif" font-size="8" font-weight="900" fill="#FFFFFF" text-anchor="middle">SS TRENDY</text>
+</svg>

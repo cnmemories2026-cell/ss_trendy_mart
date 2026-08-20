@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Soft Background Gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="70%" stop-color="#FAF5EC"/>
+      <stop offset="100%" stop-color="#F2E6D2"/>
+    </radialGradient>
+
+    <!-- Top Ribbon Gradient -->
+    <linearGradient id="topRibbonGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ECC586"/>
+      <stop offset="50%" stop-color="#DDB370"/>
+      <stop offset="100%" stop-color="#C29249"/>
+    </linearGradient>
+
+    <!-- Ribbon Fold Shadow -->
+    <linearGradient id="foldShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8C5C23"/>
+      <stop offset="100%" stop-color="#5E3C14"/>
+    </linearGradient>
+
+    <!-- Bottom Ribbon Gradient -->
+    <linearGradient id="botRibbonGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6E3E1E"/>
+      <stop offset="50%" stop-color="#552C12"/>
+      <stop offset="100%" stop-color="#3D1C08"/>
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="badgeShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#5A3A1A" flood-opacity="0.18"/>
+    </filter>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Base Circle with Shadow -->
+  <circle cx="250" cy="250" r="235" fill="url(#bgGrad)" stroke="#E0CDB2" stroke-width="2" filter="url(#badgeShadow)" />
+  
+  <!-- Outer Stitching Line -->
+  <circle cx="250" cy="250" r="218" fill="none" stroke="#6D4827" stroke-width="2.5" stroke-dasharray="7 5" stroke-linecap="round" opacity="0.85" />
+
+  <!-- TOP RIBBON: Hand Crafted -->
+  <!-- Left Ribbon Tail -->
+  <path d="M 90 148 L 135 125 L 140 162 L 95 168 L 108 158 Z" fill="#BA8943" stroke="#87561B" stroke-width="1.5" />
+  <path d="M 135 125 L 140 162 L 155 142 Z" fill="url(#foldShadow)" />
+  <!-- Right Ribbon Tail -->
+  <path d="M 410 148 L 365 125 L 360 162 L 405 168 L 392 158 Z" fill="#BA8943" stroke="#87561B" stroke-width="1.5" />
+  <path d="M 365 125 L 360 162 L 345 142 Z" fill="url(#foldShadow)" />
+  <!-- Main Curved Top Banner -->
+  <path d="M 125 146 C 180 118 320 118 375 146 L 360 185 C 310 162 190 162 140 185 Z" fill="url(#topRibbonGrad)" stroke="#9E6924" stroke-width="2" filter="url(#softGlow)" />
+  <path d="M 130 148 C 182 122 318 122 370 148" fill="none" stroke="#FFF3D6" stroke-width="1" opacity="0.7" />
+  
+  <!-- Top Text: Hand Crafted -->
+  <text x="250" y="157" font-family="'Georgia', 'Times New Roman', serif" font-size="21" font-weight="bold" fill="#3D2109" text-anchor="middle" letter-spacing="1.2">
+    Hand Crafted
+  </text>
+
+  <!-- SPARKLES / STARS -->
+  <!-- Left Stars -->
+  <g fill="#7A4B22">
+    <!-- Star 1 -->
+    <path d="M 180 178 Q 180 186 172 186 Q 180 186 180 194 Q 180 186 188 186 Q 180 186 180 178 Z" />
+    <!-- Star 2 -->
+    <path d="M 160 215 Q 160 227 148 227 Q 160 227 160 239 Q 160 227 172 227 Q 160 227 160 215 Z" />
+    <circle cx="192" cy="225" r="2.5" />
+    <circle cx="170" cy="180" r="1.8" />
+  </g>
+  <!-- Right Stars -->
+  <g fill="#7A4B22">
+    <!-- Star 3 -->
+    <path d="M 320 178 Q 320 186 312 186 Q 320 186 320 194 Q 320 186 328 186 Q 320 186 320 178 Z" />
+    <!-- Star 4 -->
+    <path d="M 340 215 Q 340 227 328 227 Q 340 227 340 239 Q 340 227 352 227 Q 340 227 340 215 Z" />
+    <circle cx="308" cy="225" r="2.5" />
+    <circle cx="330" cy="180" r="1.8" />
+    <circle cx="355" cy="245" r="2" />
+  </g>
+
+  <!-- TEDDY BEAR ILLUSTRATION -->
+  <g id="teddyBear" stroke="#462B14" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    
+    <!-- Ears -->
+    <!-- Left Ear Outer -->
+    <circle cx="218" cy="170" r="15" fill="#EEDAC5" />
+    <!-- Left Ear Inner -->
+    <circle cx="218" cy="170" r="8" fill="#FBF3EA" stroke="#A97E59" stroke-width="1.5" />
+    
+    <!-- Right Ear Outer -->
+    <circle cx="282" cy="170" r="15" fill="#EEDAC5" />
+    <!-- Right Ear Inner -->
+    <circle cx="282" cy="170" r="8" fill="#FBF3EA" stroke="#A97E59" stroke-width="1.5" />
+
+    <!-- Head -->
+    <ellipse cx="250" cy="192" rx="36" ry="31" fill="#EEDAC5" />
+
+    <!-- Muzzle / Snout -->
+    <ellipse cx="250" cy="198" rx="16" ry="12" fill="#FBF3EA" stroke="#A97E59" stroke-width="1.5" />
+    
+    <!-- Nose -->
+    <ellipse cx="250" cy="193" rx="5.5" ry="3.8" fill="#3D2109" stroke="none" />
+    
+    <!-- Mouth -->
+    <path d="M 250 196 L 250 201 M 245 201 Q 250 206 255 201" fill="none" stroke="#3D2109" stroke-width="1.8" />
+
+    <!-- Eyes -->
+    <ellipse cx="237" cy="188" rx="3.5" ry="4" fill="#3D2109" stroke="none" />
+    <circle cx="236" cy="186.5" r="1.2" fill="#FFFFFF" stroke="none" />
+
+    <!-- Right Eye -->
+    <ellipse cx="263" cy="188" rx="3.5" ry="4" fill="#3D2109" stroke="none" />
+    <circle cx="262" cy="186.5" r="1.2" fill="#FFFFFF" stroke="none" />
+
+    <!-- Cute Blush -->
+    <circle cx="228" cy="196" r="4.5" fill="#F4B8A5" opacity="0.6" stroke="none" />
+    <circle cx="272" cy="196" r="4.5" fill="#F4B8A5" opacity="0.6" stroke="none" />
+
+    <!-- Body / Back -->
+    <path d="M 224 212 C 215 225 210 248 220 262 C 230 268 270 268 280 262 C 290 248 285 225 276 212" fill="#EEDAC5" />
+
+    <!-- Feet / Paws -->
+    <!-- Left Paw -->
+    <ellipse cx="218" cy="260" rx="13" ry="16" fill="#EEDAC5" transform="rotate(-15 218 260)" />
+    <ellipse cx="218" cy="260" rx="7.5" ry="10" fill="#FBF3EA" stroke="#A97E59" stroke-width="1.2" transform="rotate(-15 218 260)" />
+
+    <!-- Right Paw -->
+    <ellipse cx="282" cy="260" rx="13" ry="16" fill="#EEDAC5" transform="rotate(15 282 260)" />
+    <ellipse cx="282" cy="260" rx="7.5" ry="10" fill="#FBF3EA" stroke="#A97E59" stroke-width="1.2" transform="rotate(15 282 260)" />
+
+    <!-- GIFT BOX (Held in center) -->
+    <!-- Box Body -->
+    <rect x="233" y="222" width="34" height="34" rx="2" fill="#FFF9F2" stroke="#462B14" stroke-width="2.2" />
+    <!-- Box Lid -->
+    <rect x="230" y="217" width="40" height="7" rx="1.5" fill="#FFF9F2" stroke="#462B14" stroke-width="2.2" />
+    <!-- Vertical Ribbon -->
+    <line x1="250" y1="217" x2="250" y2="256" stroke="#C29249" stroke-width="4.5" />
+    <line x1="250" y1="217" x2="250" y2="256" stroke="#462B14" stroke-width="1" />
+    <!-- Horizontal Ribbon -->
+    <line x1="233" y1="238" x2="267" y2="238" stroke="#C29249" stroke-width="4.5" />
+    <line x1="233" y1="238" x2="267" y2="238" stroke="#462B14" stroke-width="1" />
+    
+    <!-- Gift Bow on top -->
+    <path d="M 250 217 C 242 208 235 212 242 217 Z" fill="#ECC586" stroke="#462B14" stroke-width="1.8" />
+    <path d="M 250 217 C 258 208 265 212 258 217 Z" fill="#ECC586" stroke="#462B14" stroke-width="1.8" />
+    <circle cx="250" cy="217" r="2.5" fill="#C29249" stroke="#462B14" stroke-width="1.5" />
+
+    <!-- Arms Holding the Box -->
+    <!-- Left Arm -->
+    <path d="M 223 216 C 220 228 228 238 236 238" fill="none" stroke="#462B14" stroke-width="5" stroke-linecap="round" />
+    <path d="M 223 216 C 220 228 228 238 236 238" fill="none" stroke="#EEDAC5" stroke-width="2.5" stroke-linecap="round" />
+    
+    <!-- Right Arm -->
+    <path d="M 277 216 C 280 228 272 238 264 238" fill="none" stroke="#462B14" stroke-width="5" stroke-linecap="round" />
+    <path d="M 277 216 C 280 228 272 238 264 238" fill="none" stroke="#EEDAC5" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+
+  <!-- BRAND NAME: SS Trendy Mart -->
+  <text x="250" y="324" font-family="'Georgia', 'Cinzel', 'Playfair Display', 'Times New Roman', serif" font-size="34" font-weight="900" fill="#301A09" text-anchor="middle" letter-spacing="0.5">
+    SS Trendy Mart
+  </text>
+
+  <!-- BOTTOM RIBBON: 9342044060 -->
+  <!-- Left Ribbon Tail -->
+  <path d="M 80 392 L 130 364 L 132 404 L 85 412 L 98 402 Z" fill="#42200A" stroke="#2B1405" stroke-width="1.5" />
+  <path d="M 130 364 L 132 404 L 145 385 Z" fill="#1C0C03" />
+  <!-- Right Ribbon Tail -->
+  <path d="M 420 392 L 370 364 L 368 404 L 415 412 L 402 402 Z" fill="#42200A" stroke="#2B1405" stroke-width="1.5" />
+  <path d="M 370 364 L 368 404 L 355 385 Z" fill="#1C0C03" />
+  <!-- Main Bottom Ribbon Body -->
+  <rect x="110" y="362" width="280" height="42" rx="4" fill="url(#botRibbonGrad)" stroke="#2B1405" stroke-width="2" filter="url(#softGlow)" />
+  <!-- Stitched Inner Line on Bottom Ribbon -->
+  <rect x="114" y="366" width="272" height="34" rx="2" fill="none" stroke="#965D34" stroke-width="1" stroke-dasharray="4 3" opacity="0.75" />
+  
+  <!-- Bottom Text: 9342044060 -->
+  <text x="250" y="392" font-family="'Inter', 'Segoe UI', 'Arial', sans-serif" font-size="25" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="1.5">
+    9342044060
+  </text>
+
+  <!-- BOTTOM LAUREL / LEAVES ACCENT -->
+  <!-- Left Leaves -->
+  <g fill="#B89558" stroke="#8F6E31" stroke-width="0.8">
+    <path d="M 230 435 C 205 435 170 425 150 415" fill="none" stroke="#9A773A" stroke-width="2.5" stroke-linecap="round" />
+    <!-- Leaves along stem -->
+    <ellipse cx="160" cy="416" rx="9" ry="4" transform="rotate(-25 160 416)" />
+    <ellipse cx="178" cy="422" rx="10" ry="4.5" transform="rotate(-15 178 422)" />
+    <ellipse cx="196" cy="428" rx="11" ry="5" transform="rotate(-5 196 428)" />
+    <ellipse cx="214" cy="433" rx="11" ry="5" transform="rotate(5 214 433)" />
+  </g>
+
+  <!-- Right Leaves -->
+  <g fill="#B89558" stroke="#8F6E31" stroke-width="0.8">
+    <path d="M 270 435 C 295 435 330 425 350 415" fill="none" stroke="#9A773A" stroke-width="2.5" stroke-linecap="round" />
+    <!-- Leaves along stem -->
+    <ellipse cx="340" cy="416" rx="9" ry="4" transform="rotate(25 340 416)" />
+    <ellipse cx="322" cy="422" rx="10" ry="4.5" transform="rotate(15 322 422)" />
+    <ellipse cx="304" cy="428" rx="11" ry="5" transform="rotate(5 304 428)" />
+    <ellipse cx="286" cy="433" rx="11" ry="5" transform="rotate(-5 286 433)" />
+  </g>
+
+</svg>
