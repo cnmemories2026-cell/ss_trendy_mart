@@ -204,17 +204,6 @@ export const AdminProducts = () => {
             🎨 Manage Categories ({storeCategories.length})
           </button>
           <button
-            onClick={() => {
-              if (window.confirm('Are you sure you want to remove ALL products from the store?')) {
-                clearAllProducts();
-              }
-            }}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs rounded-xl transition-colors border border-red-200"
-            title="Wipe all products"
-          >
-            <Trash2 className="w-4 h-4" /> Remove All Products
-          </button>
-          <button
             onClick={handleOpenAddModal}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-colors"
           >
