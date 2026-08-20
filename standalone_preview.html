@@ -3,163 +3,179 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SS Trendy Mart – Complete E-Commerce Website & Coupon System</title>
+  <title>SS Trendy Mart – Hand Crafted Official Website</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Georgia&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .hero-gradient { background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #c084fc 100%); }
-    .glass-card { background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); }
+    body { font-family: 'Inter', sans-serif; background-color: #fdf8f2; color: #2b1704; }
+    .hero-gradient { background: linear-gradient(135deg, #4a2e1b 0%, #5c3a21 40%, #8c5221 70%, #d4a373 100%); }
+    .card-3d { transition: all 0.35s ease; }
+    .card-3d:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 30px -10px rgba(92, 58, 33, 0.2); }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900 selection:bg-purple-600 selection:text-white pb-20">
+<body class="bg-[#FDF8F2] text-[#2B1704] selection:bg-[#5C3A21] selection:text-white pb-20">
   
   <!-- Announcement Banner -->
-  <div class="bg-gradient-to-r from-purple-950 via-brand-900 to-indigo-950 text-white text-xs font-semibold py-2 px-4 text-center flex justify-between items-center max-w-7xl mx-auto rounded-b-xl shadow-md">
-    <span>✨ Welcome to <strong>SS Trendy Mart</strong> • Special Coupon: <strong class="text-amber-300">TRENDY10</strong> (10% OFF)</span>
-    <a href="https://wa.me/919342044060" target="_blank" class="hover:underline flex items-center gap-1 text-purple-200">WhatsApp: <strong>9342044060</strong></a>
+  <div class="bg-gradient-to-r from-[#3D2314] via-[#5C3A21] to-[#8C5221] text-[#FDF8F2] text-xs font-bold py-2 px-4 text-center flex justify-between items-center max-w-7xl mx-auto rounded-b-xl shadow-md">
+    <span>✨ Hand Crafted • <strong>SS Trendy Mart</strong> • Coupon: <strong class="text-amber-300">TRENDY10</strong> (10% OFF)</span>
+    <a href="https://wa.me/919342044060" target="_blank" class="hover:underline flex items-center gap-1 text-amber-200">WhatsApp: <strong>9342044060</strong></a>
   </div>
 
-  <!-- Main Header (No Admin Link in Top) -->
-  <header className="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <img src="public/logo.jpg" onError="this.src='logo.jpg'" alt="SS Trendy Mart Logo" class="w-10 h-10 rounded-2xl shadow-md border border-amber-200 object-cover" />
+  <!-- Header -->
+  <header class="bg-[#FFFDF9]/95 backdrop-blur-md border-b border-[#EADBC8] sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="#" onclick="window.scrollTo({top:0,left:0,behavior:'instant'}); return false;" class="flex items-center gap-3">
+        <img src="file:///C:/Users/chand/.gemini/antigravity/brain/a34f9639-09bb-4036-8430-167eb5d2a829/.user_uploaded/media_1787203872270.jpg" alt="Logo" class="w-14 h-14 rounded-full object-contain border-2 border-[#5C3A21]" />
         <div>
-          <span class="text-2xl font-black tracking-tight text-gray-900">SS Trendy <span class="text-purple-600">Mart</span></span>
-          <span class="text-[10px] text-gray-500 font-extrabold block uppercase tracking-wider">Hand Crafted • 9342044060</span>
+          <span class="text-2xl font-black text-[#2B1704]">SS Trendy <span class="text-[#5C3A21]">Mart</span></span>
+          <span class="text-[10px] text-[#5C3A21] font-black block uppercase tracking-widest font-serif">Hand Crafted • 9342044060</span>
         </div>
-      </div>
+      </a>
 
-      <div class="flex items-center gap-6 text-xs font-bold text-gray-700">
-        <a href="#products" class="hover:text-purple-600">All PDF Products (44)</a>
-        <a href="#coupons" class="hover:text-purple-600 text-purple-600">Promo Coupons</a>
-        <a href="https://wa.me/919342044060" target="_blank" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md font-black transition-all">WhatsApp 9342044060</a>
+      <div class="flex items-center gap-6 text-xs font-black text-[#5C3A21]">
+        <a href="#" onclick="window.scrollTo({top:0,left:0,behavior:'instant'}); return false;">HOME</a>
+        <a href="#products">CATALOGUE</a>
+        <a href="#categories">CATEGORIES</a>
+        <a href="https://instagram.com/ss_trendy_mart" target="_blank" class="text-pink-700">INSTAGRAM</a>
+        <a href="https://wa.me/919342044060" target="_blank" class="px-5 py-2.5 bg-[#5C3A21] text-white rounded-xl shadow-md">WhatsApp: 9342044060</a>
       </div>
     </div>
   </header>
 
   <!-- Hero Section -->
-  <section class="hero-gradient text-white py-16 px-6 mx-4 my-6 rounded-3xl text-center space-y-6 shadow-2xl relative overflow-hidden">
+  <section class="hero-gradient text-[#FDF8F2] py-16 px-6 mx-4 my-6 rounded-3xl text-center space-y-6 shadow-2xl relative overflow-hidden">
     <div class="inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-xs font-extrabold border border-white/20">
-      🎉 PDF Catalog Products • Instant WhatsApp Ordering
+      🎨 Hand Crafted Portfolio & PDF Product Catalogue
     </div>
-    <h1 class="text-4xl sm:text-6xl font-black tracking-tight">SS Trendy Mart</h1>
-    <p class="text-xl font-semibold text-purple-100 max-w-xl mx-auto">“Trendy Products. Easy Shopping.”</p>
+    <h1 class="text-4xl sm:text-6xl font-black tracking-tight font-serif">SS Trendy Mart</h1>
+    <p class="text-xl font-bold text-amber-200 max-w-xl mx-auto">“Trendy Products. Easy Shopping.”</p>
     
     <div class="flex flex-wrap justify-center gap-4 pt-2">
-      <a href="#products" class="px-8 py-3.5 bg-white text-purple-950 font-black text-sm rounded-2xl shadow-xl hover:scale-105 transition-all">Explore 44 Products</a>
-      <a href="https://wa.me/919342044060" target="_blank" class="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm rounded-2xl shadow-xl hover:scale-105 transition-all">Contact Owner on WhatsApp</a>
+      <a href="#products" class="px-8 py-3.5 bg-[#FFFDF9] text-[#2B1704] font-black text-sm rounded-2xl shadow-xl hover:scale-105 transition-all">Explore Catalogue</a>
+      <a href="https://wa.me/919342044060" target="_blank" class="px-8 py-3.5 bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-xl hover:scale-105 transition-all">WhatsApp 9342044060</a>
     </div>
   </section>
 
-  <!-- Coupon Section Banner -->
-  <section id="coupons" class="max-w-7xl mx-auto px-4 py-6">
-    <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-pink-600 text-white rounded-3xl p-6 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
-      <div class="space-y-1 text-center md:text-left">
-        <span class="bg-white/20 text-white text-[10px] font-extrabold px-3 py-1 rounded-full uppercase">Exclusive Discount Coupons</span>
-        <h3 class="text-xl font-black">Save Money With Promo Codes!</h3>
-        <p class="text-xs text-amber-100">Use <strong class="text-white">TRENDY10</strong> for 10% OFF or <strong class="text-white">WELCOME50</strong> for ₹50 OFF</p>
-      </div>
+  <!-- Official Categories Section -->
+  <section id="categories" class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+    <div class="text-center space-y-2">
+      <span class="text-xs font-black text-[#5C3A21] uppercase tracking-widest">Official Collections</span>
+      <h2 class="text-3xl font-black text-[#2B1704] font-serif">Our Official Categories 🎨</h2>
+    </div>
 
-      <div class="flex gap-3">
-        <div class="bg-white text-gray-900 px-4 py-2 rounded-2xl border text-center shadow-md">
-          <span class="text-[10px] font-bold text-gray-400 block uppercase">10% OFF</span>
-          <strong class="text-sm font-black text-purple-700">TRENDY10</strong>
-        </div>
-        <div class="bg-white text-gray-900 px-4 py-2 rounded-2xl border text-center shadow-md">
-          <span class="text-[10px] font-bold text-gray-400 block uppercase">₹50 OFF</span>
-          <strong class="text-sm font-black text-emerald-700">WELCOME50</strong>
-        </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="bg-[#FFFDF9] p-4 rounded-3xl border border-[#EADBC8] shadow-sm text-center space-y-2 card-3d">
+        <div class="text-3xl">📱</div>
+        <h3 class="font-black text-xs text-[#2B1704]">Mobile Charm</h3>
+      </div>
+      <div class="bg-[#FFFDF9] p-4 rounded-3xl border border-[#EADBC8] shadow-sm text-center space-y-2 card-3d">
+        <div class="text-3xl">📿</div>
+        <h3 class="font-black text-xs text-[#2B1704]">Bracelet</h3>
+      </div>
+      <div class="bg-[#FFFDF9] p-4 rounded-3xl border border-[#EADBC8] shadow-sm text-center space-y-2 card-3d">
+        <div class="text-3xl">🧸</div>
+        <h3 class="font-black text-xs text-[#2B1704]">Toys</h3>
+      </div>
+      <div class="bg-[#FFFDF9] p-4 rounded-3xl border border-[#EADBC8] shadow-sm text-center space-y-2 card-3d">
+        <div class="text-3xl">🎨</div>
+        <h3 class="font-black text-xs text-[#2B1704]">Miniature</h3>
+      </div>
+      <div class="bg-[#FFFDF9] p-4 rounded-3xl border border-[#EADBC8] shadow-sm text-center space-y-2 card-3d">
+        <div class="text-3xl">🔑</div>
+        <h3 class="font-black text-xs text-[#2B1704]">Keychain</h3>
+      </div>
+      <div class="bg-[#FFFDF9] p-4 rounded-3xl border border-[#EADBC8] shadow-sm text-center space-y-2 card-3d">
+        <div class="text-3xl">⌚</div>
+        <h3 class="font-black text-xs text-[#2B1704]">Watch</h3>
       </div>
     </div>
   </section>
 
   <!-- Products Section -->
   <section id="products" class="max-w-7xl mx-auto px-4 py-10 space-y-6">
-    <div class="flex justify-between items-end border-b pb-4">
+    <div class="flex justify-between items-end border-b border-[#EADBC8] pb-4">
       <div>
-        <span class="text-xs font-extrabold text-purple-600 uppercase tracking-widest">Official PDF Catalog Items</span>
-        <h2 class="text-3xl font-black text-gray-900">PDF Products (Product 01 to Product 44)</h2>
+        <span class="text-xs font-extrabold text-[#5C3A21] uppercase tracking-widest">PDF Catalogue</span>
+        <h2 class="text-3xl font-black text-[#2B1704] font-serif">Handcrafted Products with Color Variant Stock</h2>
       </div>
-      <span class="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Unpriced items display "Price – Contact us"</span>
+      <span class="text-xs font-bold text-[#5C3A21] bg-[#F7EFE5] px-3 py-1 rounded-full border">Object-Fit Contain (No Cropping)</span>
     </div>
 
     <!-- Grid Container -->
     <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
   </section>
 
-  <!-- Bottom Footer with Admin Panel Link -->
-  <footer class="bg-gray-900 text-gray-300 py-10 px-4 mt-20 border-t border-gray-800 text-center space-y-4">
+  <!-- Footer -->
+  <footer class="bg-[#1C0D02] text-[#FDF8F2] py-10 px-4 mt-20 text-center space-y-4">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
       <div>
-        <strong class="text-white">SS Trendy Mart</strong> • Contact Owner: 9342044060
+        <a href="#" onclick="window.scrollTo({top:0,left:0,behavior:'instant'}); return false;" class="font-bold hover:underline">Home</a> • 
+        <strong>SS Trendy Mart</strong> • WhatsApp: 9342044060
       </div>
       <div>
-        <a href="/admin/login" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-purple-300 rounded-xl font-bold border border-gray-700">Owner Admin Panel Login</a>
+        <a href="/admin/login" class="px-4 py-2 bg-[#3D2314] hover:bg-[#5C3A21] text-amber-200 rounded-xl font-bold border border-amber-900/40">Owner Admin Login</a>
       </div>
     </div>
   </footer>
 
-  <!-- Floating WhatsApp Button -->
-  <a href="https://wa.me/919342044060" target="_blank" class="fixed bottom-6 right-6 bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-full shadow-2xl z-50 flex items-center gap-2 hover:scale-110 transition-transform font-bold text-sm">
-    💬 WhatsApp: 9342044060
+  <!-- Floating WhatsApp & Back to Top Buttons -->
+  <button onclick="window.scrollTo({top:0,left:0,behavior:'smooth'})" class="fixed bottom-6 right-20 bg-[#5C3A21] text-white p-3.5 rounded-full shadow-2xl z-40 border-2 border-white font-bold" title="Back to Top">
+    ↑
+  </button>
+
+  <a href="https://wa.me/919342044060" target="_blank" class="fixed bottom-6 right-6 bg-emerald-700 text-white p-3.5 rounded-full shadow-2xl z-50 flex items-center gap-2 font-bold text-sm">
+    💬 9342044060
   </a>
 
   <script>
-    const grid = document.getElementById('productGrid');
-    
-    function getSvg(i) {
-      const colors = [
-        ['%23a855f7', '%23ec4899'],
-        ['%233b82f6', '%2306b6d4'],
-        ['%2310b981', '%23059669'],
-        ['%23f59e0b', '%23d97706'],
-        ['%23ef4444', '%23f43f5e']
-      ];
-      const c = colors[i % colors.length];
-      const num = i < 10 ? '0' + i : i;
+    const items = [
+      { name: 'dolphin', pdf: 'PDF-39', price: 25, cat: 'Miniature', variants: 'green:3, purple:2, peach:2, blue:1, orange:3, yellow:3, white:2', total: 16 },
+      { name: 'sleeping panda(radian)', pdf: 'PDF-40', price: 40, cat: 'Miniature', variants: 'white:1, yellow:1', total: 2 },
+      { name: 'panda (radian)', pdf: 'PDF-41', price: 35, cat: 'Toys', variants: 'blue:2, pink:2, green:3, yellow:4, purple:3, peach:2', total: 16 },
+      { name: 'mini dogs (radian)', pdf: 'PDF-42', price: 20, cat: 'Toys', variants: 'yellow:2, orange:1, green:2, light green:3, purple:2, blue:1, white:1, pink:1', total: 13 },
+      { name: 'chubby rabbits(radian)', pdf: 'PDF-43', price: 25, cat: 'Mobile Charm', variants: 'pink:1, blue:1, green:3, orange:3, purple:2, peach:1', total: 11 },
+      { name: 'fish (radian)', pdf: 'PDF-44', price: 25, cat: 'Keychain', variants: 'pink:4, blue:2, light purple:3, green:2, yellow:3, orange:3', total: 17 },
+      { name: 'Car dashboard', pdf: 'PDF-46', price: 130, cat: 'Watch', variants: 'clear:2, frosted:2', total: 4 }
+    ];
 
+    function getSvg(i) {
       return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
-        <rect width="400" height="400" fill="%23f8fafc" />
-        <rect x="40" y="40" width="320" height="320" rx="24" fill="%23f1f5f9" stroke="%23e2e8f0" stroke-width="4"/>
-        <circle cx="200" cy="180" r="80" fill="url(%23g${i})"/>
-        <defs>
-          <linearGradient id="g${i}" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="${c[0]}"/>
-            <stop offset="100%" stop-color="${c[1]}"/>
-          </linearGradient>
-        </defs>
-        <circle cx="180" cy="165" r="8" fill="%231e293b"/>
-        <circle cx="220" cy="165" r="8" fill="%231e293b"/>
-        <ellipse cx="200" cy="185" rx="10" ry="6" fill="%23f43f5e"/>
-        <rect x="120" y="300" width="160" height="36" rx="18" fill="%231e1b4b" />
-        <text x="200" y="324" font-family="sans-serif" font-size="16" font-weight="bold" fill="%23ffffff" text-anchor="middle">Product ${num}</text>
+        <rect width="400" height="400" fill="%23FDF8F2" />
+        <rect x="30" y="30" width="340" height="340" rx="24" fill="%23FFFDF9" stroke="%235C3A21" stroke-width="4" stroke-dasharray="8 6"/>
+        <circle cx="200" cy="180" r="80" fill="%23F5EBE1"/>
+        <text x="200" y="200" font-family="sans-serif" font-size="60" text-anchor="middle">🎨</text>
+        <rect x="100" y="300" width="200" height="36" rx="18" fill="%235C3A21" />
+        <text x="200" y="324" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="%23FDF8F2" text-anchor="middle">Product</text>
       </svg>`;
     }
 
-    for (let i = 1; i <= 44; i++) {
-      const num = i < 10 ? '0' + i : i;
+    const grid = document.getElementById('productGrid');
+
+    items.forEach((item, idx) => {
       const card = document.createElement('div');
-      card.className = "bg-white rounded-3xl border border-gray-100 p-4 space-y-3 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between";
+      card.className = "bg-[#FFFDF9] rounded-3xl border border-[#EADBC8] p-4 space-y-3 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between card-3d";
       card.innerHTML = `
-        <div class="aspect-square bg-gray-50 rounded-2xl overflow-hidden relative group">
-          <img src="${getSvg(i)}" alt="Product ${num}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-          <span class="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md">PDF Page ${i}</span>
-          <span class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">PDF-${num}</span>
+        <div class="aspect-square bg-[#FDF8F2] rounded-2xl overflow-hidden relative group p-2 flex items-center justify-center">
+          <img src="${getSvg(idx)}" alt="${item.name}" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+          <span class="absolute top-3 right-3 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">${item.pdf}</span>
         </div>
         <div class="space-y-2">
-          <span class="text-[10px] font-extrabold text-purple-600 uppercase tracking-widest">Miniature Figurines</span>
-          <h3 class="font-extrabold text-gray-900 text-base">Product ${num}</h3>
-          <p class="text-xs text-gray-500 line-clamp-2">Original miniature item imported directly from PDF catalog Page ${i}.</p>
-          <div class="pt-2 border-t flex justify-between items-center">
-            <span class="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">Price – Contact us</span>
-            <a href="https://wa.me/919342044060?text=Hi%20SS%20Trendy%20Mart,%20I%20want%20to%20order%20Product%20${num}%20(PDF-${num})" target="_blank" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all">Order Now</a>
+          <span class="text-[10px] font-extrabold text-[#5C3A21] uppercase tracking-widest">${item.cat}</span>
+          <h3 class="font-black text-[#2B1704] text-base capitalize">${item.name}</h3>
+          
+          <div class="text-[11px] p-2 bg-purple-50 rounded-xl border border-purple-200 text-purple-900 font-bold space-y-1">
+            <div>Total: <strong>${item.total} units</strong></div>
+            <div class="text-[10px] text-purple-700 font-medium">${item.variants}</div>
+          </div>
+
+          <div class="pt-2 border-t border-[#EADBC8] flex justify-between items-center">
+            <span class="text-sm font-black text-[#2B1704]">₹${item.price}</span>
+            <a href="https://wa.me/919342044060?text=Hi%20SS%20Trendy%20Mart,%20I%20want%20to%20order%20${item.name}%20(${item.pdf})" target="_blank" class="px-4 py-2 bg-[#5C3A21] hover:bg-[#4A2E1B] text-white font-extrabold text-xs rounded-xl shadow-md">Order Now</a>
           </div>
         </div>
       `;
       grid.appendChild(card);
-    }
+    });
   </script>
 </body>
 </html>

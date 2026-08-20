@@ -7,48 +7,41 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Warm Artisan Handcrafted Theme matching SS Trendy Mart Logo
+        // SS Trendy Mart Logo Theme Palette (Chestnut Brown, Amber Gold, Vintage Cream)
         brand: {
-          50: '#fffcf7',
-          100: '#f7ede2',
-          200: '#e8d4c1',
-          300: '#d9b99b',
-          400: '#b88960',
-          500: '#9c6644', // Warm Handcrafted Saddle Leather
-          600: '#8b5e3c', // Logo Ribbon Brown
-          700: '#6e472b', // Logo Header Deep Brown
-          800: '#5c3a21', // Dark Espresso Ribbon
-          900: '#3e2312',
-          950: '#261408',
+          50: '#fdf8f2',
+          100: '#f7efe5',
+          200: '#eadbc8',
+          300: '#d4a373',
+          400: '#c49a6c',
+          500: '#8c5221', 
+          600: '#5c3a21', // Primary Chestnut Leather Brown (Logo Theme)
+          700: '#4a2e1b',
+          800: '#3d2314',
+          900: '#2b1704',
+          950: '#1c0d02',
         },
-        warm: {
-          50: '#fdfbf7',  // Logo Inner Circle Cream
-          100: '#f8f1e5',
-          200: '#eee0cb',
-          300: '#e2cbac',
-          400: '#d5b187',
-          500: '#c49765', // Golden Honey Bear Tone
-          600: '#a97a48',
-          700: '#875d33',
-        },
-        peach: {
-          50: '#fffdfa',
-          100: '#f7eee1',
-          200: '#eddcc5',
-          300: '#dfc4a3',
+        gold: {
+          100: '#fef3c7',
+          400: '#fbbf24',
+          500: '#e09f3e',
+          600: '#d4a373',
+          700: '#b45309',
         },
         cream: {
-          50: '#fdfbf7',
-          100: '#f9f5ed',
-          200: '#f3ead8',
+          50: '#fffdf9',
+          100: '#fdf8f2',
+          200: '#f7efe5',
+          300: '#eadbc8',
         }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Georgia', 'Cambria', 'serif'],
       },
       boxShadow: {
-        '3d': '0 10px 25px -5px rgba(249, 115, 22, 0.15), 0 8px 10px -6px rgba(249, 115, 22, 0.1)',
-        '3d-hover': '0 20px 35px -5px rgba(234, 88, 12, 0.25), 0 10px 15px -5px rgba(234, 88, 12, 0.15)',
+        '3d': '0 10px 25px -5px rgba(92, 58, 33, 0.15), 0 8px 10px -6px rgba(92, 58, 33, 0.1)',
+        '3d-hover': '0 20px 35px -5px rgba(92, 58, 33, 0.25), 0 10px 15px -5px rgba(92, 58, 33, 0.15)',
       }
     },
   },

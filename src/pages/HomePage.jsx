@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, MessageSquare, Sparkles, ArrowRight, ShieldCheck, Truck, Star, Headphones, PackageCheck, Instagram, Film, Gift } from 'lucide-react';
+import { ShoppingBag, MessageSquare, Sparkles, ArrowRight, ShieldCheck, Truck, Headphones, PackageCheck, Instagram, Film } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { ProductCard } from '../components/ProductCard';
+
+const LOGO_SRC = "file:///C:/Users/chand/.gemini/antigravity/brain/a34f9639-09bb-4036-8430-167eb5d2a829/.user_uploaded/media_1787203872270.jpg";
 
 export const HomePage = () => {
   const { products, settings } = useStore();
@@ -10,69 +12,71 @@ export const HomePage = () => {
   const availableProducts = products.filter(p => p.available !== false);
   const featuredProducts = availableProducts.slice(0, 8);
 
-  const categoriesWithEmojis = [
-    { name: 'Mobile Charm', emoji: '📱', desc: 'Cute mobile charms & phone straps' },
-    { name: 'Bracelet', emoji: '📿', desc: 'Handmade & trendy bracelets' },
-    { name: 'Toys', emoji: '🧸', desc: 'Cute plush & figurine toys' },
-    { name: 'Miniature', emoji: '🎨', desc: 'Resin & ceramic miniatures' },
-    { name: 'Keychain', emoji: '🔑', desc: 'Aesthetic & charm keychains' },
-    { name: 'Watch', emoji: '⌚', desc: 'Trendy & stylish watches' }
+  // 6 Official User Categories
+  const officialCategories = [
+    { name: 'Mobile Charm', emoji: '📱', desc: 'Handcrafted mobile straps & charms' },
+    { name: 'Bracelet', emoji: '📿', desc: 'Trendy handcrafted beaded bracelets' },
+    { name: 'Toys', emoji: '🧸', desc: 'Cute plushies & toy collectibles' },
+    { name: 'Miniature', emoji: '🎨', desc: 'Detailed resin & ceramic miniatures' },
+    { name: 'Keychain', emoji: '🔑', desc: 'Trendy keychains & bag charms' },
+    { name: 'Watch', emoji: '⌚', desc: 'Fashionable watches & wristwear' }
   ];
 
-  const instagramHandle = settings.instagramProfileUrl ? 'ss_trendy_mart' : 'ss_trendy_mart';
+  const instagramHandle = 'ss_trendy_mart';
 
   return (
     <div className="space-y-16 pb-16">
       
-      {/* 1. Hero Section (Warm Orange/Coral Theme) */}
-      <section className="relative overflow-hidden hero-gradient text-white py-16 px-4 sm:px-6 lg:px-8 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-2xl mt-4">
-        {/* Background decorative glows */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-amber-400/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-400/20 rounded-full blur-3xl pointer-events-none" />
+      {/* 1. Hero Section (Hand Crafted Logo Theme Colors) */}
+      <section className="relative overflow-hidden hero-gradient text-[#FDF8F2] py-20 px-4 sm:px-6 lg:px-8 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-2xl mt-4">
+        {/* Background Glows */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#D4A373]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#8C5221]/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-4xl mx-auto text-center space-y-6 relative z-10">
+        <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10">
+          
           {/* Logo Badge in Hero */}
           <div className="flex justify-center">
             <img
-              src="/logo.svg"
-              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/logo.jpg'; }}
-              alt="SS Trendy Mart Hand Crafted Logo"
-              className="w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-white/40 shadow-2xl object-cover hover:scale-105 transition-transform"
+              src={LOGO_SRC}
+              alt="SS Trendy Mart Logo"
+              className="w-28 h-28 rounded-full object-contain shadow-2xl border-4 border-gold-500 bg-[#FAF5EE] animate-bounce-subtle"
+              onError={(e) => { e.target.style.display = 'none'; }}
             />
           </div>
 
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold tracking-wide text-warm-100 shadow-inner">
-            <Sparkles className="w-4 h-4 text-warm-300 animate-spin" />
-            Hand Crafted • Mobile Charm • Bracelet • Toys • Miniature • Keychain • Watch
+          <div className="inline-flex items-center gap-2 bg-[#FFFDF9]/15 backdrop-blur-md border border-[#D4A373]/30 px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold tracking-wide text-gold-100 shadow-inner">
+            <Sparkles className="w-4 h-4 text-gold-400 animate-spin" />
+            Hand Crafted Portfolio & PDF Product Catalogue
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
-            SS Trendy Mart 🛍️
+          <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-[#FDF8F2] leading-tight font-serif">
+            SS Trendy Mart
           </h1>
 
-          <p className="text-xl sm:text-2xl font-bold text-warm-100 max-w-2xl mx-auto">
+          <p className="text-xl sm:text-2xl font-bold text-gold-200 max-w-2xl mx-auto">
             “Trendy Products. Easy Shopping.”
           </p>
 
-          <p className="text-sm sm:text-base text-warm-100/90 max-w-xl mx-auto leading-relaxed font-medium">
-            Browse our hand-picked catalog of high quality mobile charms, handmade bracelets, cute toys, miniatures, keychains, and watches.
+          <p className="text-sm sm:text-base text-gold-100/90 max-w-xl mx-auto leading-relaxed font-medium">
+            Explore Handcrafted Mobile Charms, Bracelets, Toys, Miniatures, Keychains, and Watches. Direct WhatsApp ordering with zero hassle.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
               to="/products"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-brand-900 hover:bg-warm-100 font-black text-base rounded-2xl shadow-xl hover:scale-105 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#FFFDF9] text-brand-900 hover:bg-gold-100 font-black text-base rounded-2xl shadow-xl hover:scale-105 transition-all"
             >
               <ShoppingBag className="w-5 h-5 text-brand-600" />
-              Shop Catalog 🛍️
+              Shop Now 🛍️
             </Link>
 
             <a
               href={`https://wa.me/91${settings.ownerPhone}`}
               target="_blank"
               rel="noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base rounded-2xl shadow-xl hover:scale-105 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-base rounded-2xl shadow-xl hover:scale-105 transition-all"
             >
               <MessageSquare className="w-5 h-5" />
               WhatsApp ({settings.ownerPhone})
@@ -81,30 +85,30 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 2. Category Cards Section (With Emojis & 3D Hover) */}
+      {/* 2. Official 6 Categories Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="text-center max-w-xl mx-auto space-y-2">
           <span className="text-xs font-extrabold text-brand-600 uppercase tracking-widest">
-            Explore Categories
+            Handcrafted Collections
           </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
-            Browse By Category 🎨
+          <h2 className="text-2xl sm:text-3xl font-black text-brand-900 font-serif">
+            Our Official Categories 🎨
           </h2>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categoriesWithEmojis.map((cat, idx) => (
+          {officialCategories.map((cat, idx) => (
             <Link
               key={idx}
               to={`/products?search=${encodeURIComponent(cat.name)}`}
-              className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all card-3d text-center space-y-2 flex flex-col justify-between"
+              className="bg-[#FFFDF9] p-5 rounded-3xl border border-brand-200/60 shadow-sm hover:shadow-xl transition-all card-3d text-center space-y-3 flex flex-col justify-between"
             >
-              <div className="text-3xl mx-auto p-3 rounded-2xl bg-warm-100 w-16 h-16 flex items-center justify-center">
+              <div className="text-3xl mx-auto p-3 rounded-2xl bg-brand-100/60 w-16 h-16 flex items-center justify-center">
                 {cat.emoji}
               </div>
               <div>
-                <h3 className="text-xs font-extrabold text-gray-900 line-clamp-1">{cat.name}</h3>
-                <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-1">{cat.desc}</p>
+                <h3 className="text-xs font-black text-brand-900 line-clamp-1 uppercase tracking-wide">{cat.name}</h3>
+                <p className="text-[10px] text-brand-700/70 mt-1 line-clamp-2">{cat.desc}</p>
               </div>
             </Link>
           ))}
@@ -113,18 +117,18 @@ export const HomePage = () => {
 
       {/* 3. Featured Products Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-gray-200 pb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-brand-200/60 pb-4">
           <div>
             <span className="text-xs font-extrabold text-brand-600 uppercase tracking-widest">
-              🔥 Trending Catalog Items
+              🔥 Handcrafted Selection
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mt-1">
+            <h2 className="text-2xl sm:text-3xl font-black text-brand-900 tracking-tight mt-1 font-serif">
               Featured Products ✨
             </h2>
           </div>
           <Link
             to="/products"
-            className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-600 hover:text-brand-700 transition-colors group"
+            className="inline-flex items-center gap-1.5 text-sm font-extrabold text-brand-600 hover:text-brand-800 transition-colors group"
           >
             Explore All Products ({products.length})
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -141,25 +145,25 @@ export const HomePage = () => {
 
       {/* 4. INSTAGRAM SECTION (Account: ss_trendy_mart) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-brand-600 via-coral-500 to-amber-500 rounded-3xl p-8 sm:p-10 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="bg-gradient-to-r from-brand-800 via-brand-700 to-gold-600 rounded-3xl p-8 sm:p-10 text-[#FDF8F2] shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-left">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-xs font-bold uppercase tracking-wider">
-              <Instagram className="w-4 h-4" /> Official Instagram
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs font-bold uppercase tracking-wider text-gold-200">
+              <Instagram className="w-4 h-4 text-gold-400" /> Official Instagram
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black">
+            <h2 className="text-2xl sm:text-3xl font-black font-serif">
               Follow SS Trendy Mart on Instagram 📸
             </h2>
-            <p className="text-xs text-orange-100 max-w-lg">
+            <p className="text-xs text-gold-100 max-w-lg">
               Check out our official Instagram account <strong>@{instagramHandle}</strong> for product Reels, customer reviews, unboxings, and new arrivals!
             </p>
           </div>
 
           <div className="flex gap-3">
             <a
-              href={settings.instagramProfileUrl || `https://instagram.com/${instagramHandle}`}
+              href={`https://instagram.com/${instagramHandle}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-brand-900 hover:bg-orange-50 font-black text-sm rounded-2xl shadow-lg hover:scale-105 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#FFFDF9] text-brand-900 hover:bg-gold-100 font-black text-sm rounded-2xl shadow-lg hover:scale-105 transition-all"
             >
               <Instagram className="w-5 h-5 text-brand-600" /> Visit @{instagramHandle}
             </a>
@@ -168,57 +172,57 @@ export const HomePage = () => {
       </section>
 
       {/* 5. Why Choose Us Section */}
-      <section className="bg-gradient-to-b from-cream-50 to-peach-100/40 py-16 px-4 sm:px-6 lg:px-8 border-y border-orange-100">
+      <section className="bg-gradient-to-b from-brand-50/50 to-cream-200/30 py-16 px-4 sm:px-6 lg:px-8 border-y border-brand-200/50">
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <span className="text-xs font-extrabold text-brand-600 uppercase tracking-widest">
               Why Customers Love Us
             </span>
-            <h2 className="text-3xl font-black text-gray-900">
+            <h2 className="text-3xl font-black text-brand-900 font-serif">
               Why Choose SS Trendy Mart? 💖
             </h2>
-            <p className="text-sm text-gray-600">
-              We make shopping for trendy products simple, personal, and reliable.
+            <p className="text-sm text-brand-800/80">
+              We make shopping for handcrafted & trendy products simple, personal, and reliable.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm text-center space-y-3 hover:shadow-md transition-shadow">
+            <div className="bg-[#FFFDF9] p-6 rounded-3xl border border-brand-200/60 shadow-sm text-center space-y-3 hover:shadow-md transition-shadow">
               <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-600 flex items-center justify-center mx-auto text-xl font-bold">
                 <ShoppingBag className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900">Easy Ordering 🛒</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <h3 className="text-lg font-bold text-brand-900">Easy Ordering 🛒</h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
                 Add products to your cart and submit details in seconds. No complex checkout steps.
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm text-center space-y-3 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl font-bold">
+            <div className="bg-[#FFFDF9] p-6 rounded-3xl border border-brand-200/60 shadow-sm text-center space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-2xl bg-gold-100 text-gold-700 flex items-center justify-center mx-auto text-xl font-bold">
                 <PackageCheck className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900">Multiple Products 📦</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Browse our complete catalog extracted directly from the official owner PDF portfolio.
+              <h3 className="text-lg font-bold text-brand-900">Multiple Products 📦</h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                Browse Mobile Charms, Bracelets, Toys, Miniatures, Keychains, and Watches.
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm text-center space-y-3 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-xl font-bold">
+            <div className="bg-[#FFFDF9] p-6 rounded-3xl border border-brand-200/60 shadow-sm text-center space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto text-xl font-bold">
                 <MessageSquare className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900">WhatsApp Support 💬</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <h3 className="text-lg font-bold text-brand-900">WhatsApp Support 💬</h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
                 Direct personal communication with the business owner for custom pricing & order tracking.
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm text-center space-y-3 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-coral-100 text-coral-600 flex items-center justify-center mx-auto text-xl font-bold">
+            <div className="bg-[#FFFDF9] p-6 rounded-3xl border border-brand-200/60 shadow-sm text-center space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto text-xl font-bold">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900">Trusted Service ⭐</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <h3 className="text-lg font-bold text-brand-900">Trusted Service ⭐</h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
                 Manual payment collection upon owner confirmation gives you total security and trust.
               </p>
             </div>
@@ -228,12 +232,12 @@ export const HomePage = () => {
 
       {/* 6. WhatsApp CTA Banner */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-3xl p-8 sm:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-emerald-800 to-teal-800 rounded-3xl p-8 sm:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
           <div className="space-y-3 max-w-xl text-center md:text-left z-10">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-xs font-bold uppercase tracking-wider">
               <Headphones className="w-3.5 h-3.5" /> Need Assistance?
             </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-serif">
               Need help? Chat with us on WhatsApp 💬
             </h2>
             <p className="text-sm text-emerald-100">
@@ -249,9 +253,9 @@ export const HomePage = () => {
               href={`https://wa.me/91${settings.ownerPhone}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-800 hover:bg-emerald-50 font-black text-lg rounded-2xl shadow-lg hover:scale-105 transition-all"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-900 hover:bg-emerald-50 font-black text-lg rounded-2xl shadow-lg hover:scale-105 transition-all"
             >
-              <MessageSquare className="w-6 h-6 text-emerald-600" />
+              <MessageSquare className="w-6 h-6 text-emerald-700" />
               {settings.ownerPhone}
             </a>
           </div>

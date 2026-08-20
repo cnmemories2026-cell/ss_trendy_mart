@@ -8,13 +8,14 @@
   }
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #fdfbf7;
+    background-color: #fdf8f2;
+    color: #2b1704;
   }
 }
 
-/* Warm Hand-Crafted Logo Palette (Espresso & Saddle Brown Gradient) */
+/* SS Trendy Mart Logo Theme Gradient (Chestnut Brown, Amber Gold, Vintage Cream) */
 .hero-gradient {
-  background: linear-gradient(135deg, #3e2312 0%, #5c3a21 40%, #8b5e3c 75%, #c49765 100%);
+  background: linear-gradient(135deg, #4a2e1b 0%, #5c3a21 40%, #8c5221 70%, #d4a373 100%);
 }
 
 .card-3d {
@@ -24,18 +25,13 @@
 
 .card-3d:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 30px -10px rgba(139, 94, 60, 0.25);
+  box-shadow: 0 20px 35px -10px rgba(92, 58, 33, 0.22);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 253, 249, 0.94);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(217, 185, 155, 0.6);
-}
-
-.custom-scrollbar {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
+  border: 1px solid rgba(212, 163, 115, 0.5);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -44,16 +40,16 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #fff7ed;
+  background: #fdf8f2;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #fdba74;
+  background: #d4a373;
   border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #f97316;
+  background: #5c3a21;
 }
 
 @keyframes bounce-subtle {

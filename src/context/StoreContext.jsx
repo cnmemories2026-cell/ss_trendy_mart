@@ -1,176 +1,134 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { initialProducts } from '../data/initialCatalog';
-import { getNormalizedColors, getProductTotalStock, getColorStock } from '../utils/stockUtils';
+import { io } from 'socket.io-client';
+import { initialProducts, OFFICIAL_CATEGORIES } from '../data/initialCatalog';
 
 const StoreContext = createContext();
 
+// Backend API URL (Vercel automatic relative route /api or local port 5000)
+const API_BASE = import.meta.env?.VITE_API_URL || '/api';
+const SOCKET_URL = import.meta.env?.VITE_SOCKET_URL || 'http://localhost:5000';
+
 const STORAGE_KEYS = {
-  PRODUCTS: 'ss_trendy_mart_products_v5',
-  CART: 'ss_trendy_mart_cart_v5',
-  ORDERS: 'ss_trendy_mart_orders_v5',
-  COUPONS: 'ss_trendy_mart_coupons_v5',
-  APPLIED_COUPON: 'ss_trendy_mart_applied_coupon_v5',
-  POS_SALES: 'ss_trendy_mart_pos_sales_v5',
-  ADMIN_AUTH: 'ss_trendy_mart_admin_auth_v5',
-  SETTINGS: 'ss_trendy_mart_settings_v5',
-  CATEGORIES: 'ss_trendy_mart_categories_v5'
+  CART: 'ss_trendy_mart_cart_v6',
+  APPLIED_COUPON: 'ss_trendy_mart_applied_coupon_v6',
+  ADMIN_AUTH: 'ss_trendy_mart_admin_auth_v6'
 };
 
 const INITIAL_COUPONS = [
-  { id: 'c1', code: 'TRENDY10', type: 'percentage', discount: 10, minSpend: 0, active: true, description: '10% OFF on all trendy orders' },
+  { id: 'c1', code: 'TRENDY10', type: 'percentage', discount: 10, minSpend: 0, active: true, description: '10% OFF on all handcrafted items' },
   { id: 'c2', code: 'WELCOME50', type: 'flat', discount: 50, minSpend: 200, active: true, description: '₹50 OFF on orders above ₹200' },
   { id: 'c3', code: 'FESTIVE20', type: 'percentage', discount: 20, minSpend: 500, active: true, description: '20% OFF on mega orders above ₹500' }
 ];
 
 export const StoreProvider = ({ children }) => {
-  const DEFAULT_CATEGORIES = ['Mobile Charm', 'Bracelet', 'Toys', 'Miniature', 'Keychain', 'Watch'];
+  const [products, setProducts] = useState(initialProducts);
+  const [settings, setSettings] = useState({
+    storeName: 'SS Trendy Mart',
+    ownerPhone: '9342044060',
+    tagline: 'Hand Crafted • Trendy Products. Easy Shopping.',
+    adminPassword: 'ChaNish@1724',
+    instagramProfileUrl: 'https://instagram.com/ss_trendy_mart'
+  });
 
-  // Helper to load and seamlessly migrate saved user data from any previous key version
-  const loadSavedData = (currentKey, keyPrefix, defaultValue) => {
+  const [orders, setOrders] = useState([]);
+  const [posSales, setPosSales] = useState([]);
+
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.CART);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    return [];
+  });
+
+  const [coupons, setCoupons] = useState(INITIAL_COUPONS);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
+    return localStorage.getItem(STORAGE_KEYS.ADMIN_AUTH) === 'true';
+  });
+
+  // Fetch Central Database on Mount & Connect Real-Time Sync
+  useEffect(() => {
+    fetchProductsFromAPI();
+    fetchDashboardFromAPI();
+    fetchOrdersFromAPI();
+
+    let socket;
     try {
-      // 1. Check current key first
-      const saved = localStorage.getItem(currentKey);
-      if (saved) {
-        return JSON.parse(saved);
-      }
-      // 2. Check all existing localStorage keys for any previous version saved by user
-      const legacyKey = Object.keys(localStorage).find(k => k.startsWith(keyPrefix) && localStorage.getItem(k));
-      if (legacyKey) {
-        const legacyData = localStorage.getItem(legacyKey);
-        if (legacyData) {
-          const parsed = JSON.parse(legacyData);
-          // Copy to current key so future reads use current key
-          localStorage.setItem(currentKey, JSON.stringify(parsed));
-          return parsed;
-        }
+      socket = io(SOCKET_URL, { transports: ['websocket', 'polling'] });
+      
+      socket.on('product:added', (newProduct) => {
+        setProducts(prev => {
+          const exists = prev.some(p => p.id === newProduct.id);
+          if (exists) return prev.map(p => p.id === newProduct.id ? newProduct : p);
+          return [newProduct, ...prev];
+        });
+      });
+
+      socket.on('product:updated', (updatedProduct) => {
+        setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+      });
+
+      socket.on('product:deleted', ({ id }) => {
+        setProducts(prev => prev.filter(p => p.id !== id));
+      });
+
+      socket.on('dashboard:updated', (newDashboard) => {
+        setSettings(prev => ({ ...prev, ...newDashboard }));
+      });
+    } catch (e) {
+      console.warn('[Socket Notice] Standalone mode.');
+    }
+
+    return () => {
+      if (socket) socket.disconnect();
+    };
+  }, []);
+
+  const fetchProductsFromAPI = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/products`);
+      const data = await res.json();
+      if (data.success && data.data && data.data.length > 0) {
+        setProducts(data.data);
       }
     } catch (e) {
-      console.error(`Error migrating saved key ${currentKey}:`, e);
-    }
-    return defaultValue;
-  };
-
-  // 1. Products State (Preserves ALL user-edited prices, images, stock, descriptions, and custom products)
-  const [products, setProducts] = useState(() => {
-    const savedList = loadSavedData(STORAGE_KEYS.PRODUCTS, 'ss_trendy_mart_products_', null);
-    if (Array.isArray(savedList) && savedList.length > 0) {
-      return savedList.map((p, idx) => {
-        const pageNum = (idx % 44) + 1;
-        const normColors = getNormalizedColors(p);
-        const imgPath = (!p.image || p.image.includes('data:image/svg') || p.image.includes('placeholder'))
-          ? `/products/page_${pageNum}.jpg`
-          : p.image;
-        return {
-          ...p,
-          image: imgPath,
-          colors: normColors
-        };
-      });
-    }
-    return initialProducts;
-  });
-
-  // Dynamic Store Categories State (Preserves user added/deleted categories)
-  const [categories, setCategories] = useState(() => {
-    return loadSavedData(STORAGE_KEYS.CATEGORIES, 'ss_trendy_mart_categories_', DEFAULT_CATEGORIES);
-  });
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
-  }, [categories]);
-
-  const addCategory = (name) => {
-    if (!name || !name.trim()) return;
-    const cleanName = name.trim();
-    if (!categories.includes(cleanName)) {
-      setCategories(prev => [...prev, cleanName]);
+      console.warn('[API Notice] Using catalog fallback.');
     }
   };
 
-  const deleteCategory = (name) => {
-    if (categories.length <= 1) {
-      alert('Must keep at least one category!');
-      return;
+  const fetchDashboardFromAPI = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/dashboard`);
+      const data = await res.json();
+      if (data.success && data.data) {
+        setSettings(prev => ({ ...prev, ...data.data }));
+      }
+    } catch (e) {
+      console.warn('[API Notice] Using settings fallback.');
     }
-    setCategories(prev => prev.filter(c => c !== name));
   };
 
-  // 2. Cart State (Preserves active cart)
-  const [cart, setCart] = useState(() => {
-    return loadSavedData(STORAGE_KEYS.CART, 'ss_trendy_mart_cart_', []);
-  });
-
-  // 3. Coupons State (Preserves custom coupons)
-  const [coupons, setCoupons] = useState(() => {
-    return loadSavedData(STORAGE_KEYS.COUPONS, 'ss_trendy_mart_coupons_', INITIAL_COUPONS);
-  });
-
-  // 4. Applied Coupon State
-  const [appliedCoupon, setAppliedCoupon] = useState(() => {
-    return loadSavedData(STORAGE_KEYS.APPLIED_COUPON, 'ss_trendy_mart_applied_coupon_', null);
-  });
-
-  // 5. Orders State (Preserves website orders created by user/customers)
-  const [orders, setOrders] = useState(() => {
-    return loadSavedData(STORAGE_KEYS.ORDERS, 'ss_trendy_mart_orders_', []);
-  });
-
-  // 6. POS Sales History State (Preserves counter sales history created by user)
-  const [posSales, setPosSales] = useState(() => {
-    return loadSavedData(STORAGE_KEYS.POS_SALES, 'ss_trendy_mart_pos_sales_', []);
-  });
-
-  // 7. Admin Auth State
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
-    const authVal = loadSavedData(STORAGE_KEYS.ADMIN_AUTH, 'ss_trendy_mart_admin_auth_', false);
-    return authVal === true || localStorage.getItem(STORAGE_KEYS.ADMIN_AUTH) === 'true';
-  });
-
-  // 8. Store Settings State (Preserves custom phone number, password, store name, Instagram link)
-  const [settings, setSettings] = useState(() => {
-    return loadSavedData(STORAGE_KEYS.SETTINGS, 'ss_trendy_mart_settings_', {
-      storeName: 'SS Trendy Mart',
-      ownerPhone: '9342044060',
-      tagline: 'Hand Crafted • Trendy Products. Easy Shopping.',
-      adminPassword: 'ChaNish@1724',
-      instagramProfileUrl: 'https://instagram.com/sstrendymart'
-    });
-  });
-
-  // Persist State
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-  }, [products]);
+  const fetchOrdersFromAPI = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/orders`);
+      const data = await res.json();
+      if (data.success && data.data) {
+        setOrders(data.data);
+      }
+    } catch (e) {
+      console.warn('[API Notice] Using orders fallback.');
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
   }, [cart]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.COUPONS, JSON.stringify(coupons));
-  }, [coupons]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.APPLIED_COUPON, JSON.stringify(appliedCoupon));
-  }, [appliedCoupon]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-  }, [orders]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.POS_SALES, JSON.stringify(posSales));
-  }, [posSales]);
-
-  useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, isAdminLoggedIn ? 'true' : 'false');
   }, [isAdminLoggedIn]);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-  }, [settings]);
-
-  // Derived Customer Database
   const customers = React.useMemo(() => {
     const map = new Map();
     orders.forEach(order => {
@@ -190,88 +148,37 @@ export const StoreProvider = ({ children }) => {
         const existing = map.get(key);
         existing.totalOrders += 1;
         existing.orders.push(order);
-        if (new Date(order.createdAt) > new Date(existing.lastOrderDate)) {
-          existing.lastOrderDate = order.createdAt;
-          existing.name = order.customerName;
-          existing.address = order.deliveryAddress;
-        }
       }
     });
     return Array.from(map.values());
   }, [orders]);
 
-  // Cart Actions (with strict colour-wise stock validation)
-  const addToCart = (product, quantity = 1, selectedColor = null) => {
-    const normColors = getNormalizedColors(product);
-
-    // Requirement 1 & 3: If product has colors, customer MUST select a color before adding to cart
-    if (normColors.length > 0 && !selectedColor) {
-      return { success: false, message: 'Please select a colour' };
-    }
-
-    const itemColor = selectedColor || null;
-    const cartItemId = itemColor ? `${product.id}-${itemColor}` : product.id;
-    const availableStock = getColorStock(product, itemColor);
-
-    // Requirement 8: Out of stock color cannot be added to cart
-    if (availableStock <= 0) {
-      return { success: false, message: itemColor ? `Colour "${itemColor}" is Out of Stock!` : 'Product is Out of Stock!' };
-    }
-
-    // Requirement 4: Stock validation before adding to cart
-    const existingCartItem = cart.find(item => (item.cartItemId || item.id) === cartItemId);
-    const existingQty = existingCartItem ? existingCartItem.quantity : 0;
-    const newQty = existingQty + quantity;
-
-    if (newQty > availableStock) {
-      return {
-        success: false,
-        message: itemColor
-          ? `Cannot add more than ${availableStock} units available for ${itemColor}.`
-          : `Cannot add more than ${availableStock} units available.`
-      };
-    }
-
+  const addToCart = (product, quantity = 1) => {
     setCart(prev => {
-      const existing = prev.find(item => (item.cartItemId || item.id) === cartItemId);
+      const existing = prev.find(item => item.id === product.id && item.selectedColor === product.selectedColor);
       if (existing) {
         return prev.map(item =>
-          (item.cartItemId || item.id) === cartItemId
-            ? { ...item, quantity: newQty, variantStock: availableStock }
+          item.id === product.id && item.selectedColor === product.selectedColor
+            ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prev, { ...product, cartItemId, selectedColor: itemColor, quantity: newQty, variantStock: availableStock }];
+      return [...prev, { ...product, quantity }];
     });
-
-    return { success: true, message: 'Item added to cart successfully!' };
   };
 
-  const updateCartQuantity = (cartItemId, newQty) => {
-    if (newQty <= 0) {
-      removeFromCart(cartItemId);
+  const updateCartQuantity = (productId, quantity) => {
+    if (quantity <= 0) {
+      removeFromCart(productId);
       return;
     }
-
     setCart(prev =>
-      prev.map(item => {
-        if ((item.cartItemId || item.id) === cartItemId) {
-          // Re-validate against fresh product stock if product exists
-          const liveProduct = products.find(p => p.id === item.id);
-          const maxStock = liveProduct
-            ? getColorStock(liveProduct, item.selectedColor)
-            : (item.variantStock || 20);
-
-          const cappedQty = Math.min(newQty, maxStock);
-          return { ...item, quantity: cappedQty, variantStock: maxStock };
-        }
-        return item;
-      })
+      prev.map(item => (item.id === productId ? { ...item, quantity } : item))
     );
   };
 
-  const removeFromCart = (cartItemId) => {
-    setCart(prev => prev.filter(item => (item.cartItemId || item.id) !== cartItemId));
+  const removeFromCart = (productId) => {
+    setCart(prev => prev.filter(item => item.id !== productId));
   };
 
   const clearCart = () => {
@@ -279,67 +186,30 @@ export const StoreProvider = ({ children }) => {
     setAppliedCoupon(null);
   };
 
-  // Coupon Actions
   const applyCoupon = (codeStr, cartSubtotal) => {
-    if (!codeStr || !codeStr.trim()) {
-      return { success: false, message: 'Please enter a coupon code' };
-    }
+    if (!codeStr || !codeStr.trim()) return { success: false, message: 'Please enter a coupon code' };
     const cleanCode = codeStr.trim().toUpperCase();
     const found = coupons.find(c => c.code === cleanCode && c.active);
 
-    if (!found) {
-      return { success: false, message: 'Invalid or expired coupon code' };
-    }
-
+    if (!found) return { success: false, message: 'Invalid or expired coupon code' };
     if (cartSubtotal < found.minSpend) {
-      return {
-        success: false,
-        message: `Minimum order amount of ₹${found.minSpend} required for coupon ${found.code}`
-      };
+      return { success: false, message: `Minimum order amount of ₹${found.minSpend} required` };
     }
 
-    let discount = 0;
-    if (found.type === 'percentage') {
-      discount = Math.round((cartSubtotal * found.discount) / 100);
-    } else {
-      discount = found.discount;
-    }
+    let discount = found.type === 'percentage'
+      ? Math.round((cartSubtotal * found.discount) / 100)
+      : found.discount;
 
     const couponObj = { ...found, discountAmount: discount };
     setAppliedCoupon(couponObj);
-    return { success: true, message: `Coupon "${found.code}" applied successfully! Saved ₹${discount}`, coupon: couponObj };
+    return { success: true, message: `Coupon "${found.code}" applied! Saved ₹${discount}`, coupon: couponObj };
   };
 
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-  };
+  const removeCoupon = () => setAppliedCoupon(null);
 
-  const addCoupon = (newCoupon) => {
-    const couponItem = {
-      id: `c_${Date.now()}`,
-      code: newCoupon.code.toUpperCase(),
-      type: newCoupon.type || 'percentage',
-      discount: Number(newCoupon.discount),
-      minSpend: Number(newCoupon.minSpend || 0),
-      active: true,
-      description: newCoupon.description || ''
-    };
-    setCoupons(prev => [couponItem, ...prev]);
-  };
-
-  const deleteCoupon = (id) => {
-    setCoupons(prev => prev.filter(c => c.id !== id));
-  };
-
-  const toggleCouponStatus = (id) => {
-    setCoupons(prev => prev.map(c => c.id === id ? { ...c, active: !c.active } : c));
-  };
-
-  // Website Order Actions (With Automatic Stock Reduction)
-  const placeOrder = (customerData) => {
+  const placeOrder = async (customerData) => {
     const orderNum = orders.length + 1;
     const orderId = `SS${String(orderNum).padStart(3, '0')}`;
-    
     const subtotal = cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
     
     let discount = 0;
@@ -359,79 +229,35 @@ export const StoreProvider = ({ children }) => {
       deliveryAddress: customerData.deliveryAddress,
       notes: customerData.notes || '',
       products: [...cart],
-      subtotal: subtotal,
+      subtotal,
       couponCode: appliedCoupon ? appliedCoupon.code : null,
       discountAmount: discount,
       total: finalTotal,
       status: 'New Order',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: new Date().toISOString()
     };
 
-    // Automatic Colour-Wise Stock Reduction
-    setProducts(prevProducts =>
-      prevProducts.map(prod => {
-        const cartItemsForProd = cart.filter(c => c.id === prod.id);
-        if (cartItemsForProd.length === 0) return prod;
-
-        const normColors = getNormalizedColors(prod);
-        let totalSoldForProd = 0;
-
-        if (normColors.length > 0) {
-          // Independent Color-wise stock deduction
-          const updatedColors = normColors.map(colorObj => {
-            const itemsInColor = cartItemsForProd.filter(c => c.selectedColor === colorObj.name);
-            const soldQty = itemsInColor.reduce((sum, item) => sum + item.quantity, 0);
-            totalSoldForProd += soldQty;
-            const newColorStock = Math.max(0, (Number(colorObj.stock) || 0) - soldQty);
-            return { name: colorObj.name, stock: newColorStock };
-          });
-
-          const newTotalStock = updatedColors.reduce((sum, c) => sum + c.stock, 0);
-          return {
-            ...prod,
-            colors: updatedColors,
-            stock: newTotalStock,
-            soldCount: (prod.soldCount || 0) + totalSoldForProd,
-            available: newTotalStock > 0
-          };
-        } else {
-          // No color variants: general product stock reduction
-          const soldQty = cartItemsForProd.reduce((sum, item) => sum + item.quantity, 0);
-          const currentStock = prod.stock !== undefined ? prod.stock : 20;
-          const newStock = Math.max(0, currentStock - soldQty);
-          return {
-            ...prod,
-            stock: newStock,
-            soldCount: (prod.soldCount || 0) + soldQty,
-            available: newStock > 0
-          };
-        }
-      })
-    );
+    try {
+      await fetch(`${API_BASE}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newOrder)
+      });
+    } catch (e) {
+      console.warn('[API Notice] Order saved locally.');
+    }
 
     setOrders(prev => [newOrder, ...prev]);
     clearCart();
     return newOrder;
   };
 
-  const updateOrderStatus = (orderId, newStatus) => {
-    setOrders(prev =>
-      prev.map(order =>
-        order.id === orderId
-          ? { ...order, status: newStatus, updatedAt: new Date().toISOString() }
-          : order
-      )
-    );
-  };
-
-  // POS Billing Sale Completion (With Automatic Colour-Wise Stock Reduction)
-  const completePOSSale = (saleData) => {
+  const completePOSSale = async (saleData) => {
     const saleNum = posSales.length + 1;
     const billId = `POS-${String(saleNum).padStart(3, '0')}`;
 
     const newBill = {
-      billId: billId,
+      billId,
       customerName: saleData.customerName || 'Counter Customer',
       customerPhone: saleData.customerPhone || '',
       items: saleData.items,
@@ -442,102 +268,86 @@ export const StoreProvider = ({ children }) => {
       createdAt: new Date().toISOString()
     };
 
-    // Automatic Colour-Wise Stock Reduction for POS Sales
-    setProducts(prevProducts =>
-      prevProducts.map(prod => {
-        const soldItemsForProd = saleData.items.filter(i => (i.productId || i.id) === prod.id);
-        if (soldItemsForProd.length === 0) return prod;
-
-        const normColors = getNormalizedColors(prod);
-        let totalSoldForProd = 0;
-
-        if (normColors.length > 0) {
-          const updatedColors = normColors.map(colorObj => {
-            const itemsInColor = soldItemsForProd.filter(i => (i.selectedColor || i.color) === colorObj.name);
-            const soldQty = itemsInColor.reduce((sum, item) => sum + item.quantity, 0);
-            totalSoldForProd += soldQty;
-            const newColorStock = Math.max(0, (Number(colorObj.stock) || 0) - soldQty);
-            return { name: colorObj.name, stock: newColorStock };
-          });
-
-          const newTotalStock = updatedColors.reduce((sum, c) => sum + c.stock, 0);
-          return {
-            ...prod,
-            colors: updatedColors,
-            stock: newTotalStock,
-            soldCount: (prod.soldCount || 0) + totalSoldForProd,
-            available: newTotalStock > 0
-          };
-        } else {
-          const soldQty = soldItemsForProd.reduce((sum, item) => sum + item.quantity, 0);
-          const currentStock = prod.stock !== undefined ? prod.stock : 20;
-          const newStock = Math.max(0, currentStock - soldQty);
-          return {
-            ...prod,
-            stock: newStock,
-            soldCount: (prod.soldCount || 0) + soldQty,
-            available: newStock > 0
-          };
-        }
-      })
-    );
-
     setPosSales(prev => [newBill, ...prev]);
     return newBill;
   };
 
-  // Product Management Actions (Admin)
-  const addProduct = (productData) => {
+  const addProduct = async (productData) => {
     const newId = `prod_${Date.now()}`;
     const newProd = {
       id: newId,
       pdfCode: productData.pdfCode || `CUSTOM-${Date.now().toString().slice(-4)}`,
       name: productData.name,
-      category: productData.category || 'General',
+      category: productData.category || 'Miniature',
       price: productData.price ? Number(productData.price) : null,
-      colors: productData.colors || [],
-      image: productData.image, // Base64 data URL or URL
-      video: productData.video || null, // Base64 video data URL or URL
+      image: productData.image,
+      video: productData.video || null,
       instagramVideoUrl: productData.instagramVideoUrl || '',
       description: productData.description || '',
+      variants: productData.variants || [],
       stock: productData.stock !== undefined ? Number(productData.stock) : 20,
       soldCount: 0,
-      available: productData.available !== undefined ? productData.available : true,
-      featured: productData.featured || false,
+      available: true,
       createdAt: new Date().toISOString()
     };
+
     setProducts(prev => [newProd, ...prev]);
+
+    try {
+      await fetch(`${API_BASE}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProd)
+      });
+    } catch (e) {
+      console.warn('[API Notice] Product added locally.');
+    }
+
     return newProd;
   };
 
-  const updateProduct = (productId, updatedFields) => {
+  const updateProduct = async (productId, updatedFields) => {
     setProducts(prev =>
-      prev.map(prod =>
-        prod.id === productId ? { ...prod, ...updatedFields } : prod
-      )
+      prev.map(prod => prod.id === productId ? { ...prod, ...updatedFields } : prod)
     );
+
+    try {
+      await fetch(`${API_BASE}/products/${productId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedFields)
+      });
+    } catch (e) {
+      console.warn('[API Notice] Product updated locally.');
+    }
   };
 
-  const deleteProduct = (productId) => {
+  const deleteProduct = async (productId) => {
     setProducts(prev => prev.filter(prod => prod.id !== productId));
+
+    try {
+      await fetch(`${API_BASE}/products/${productId}`, {
+        method: 'DELETE'
+      });
+    } catch (e) {
+      console.warn('[API Notice] Product deleted locally.');
+    }
   };
 
-  const clearAllProducts = () => {
-    setProducts([]);
-    localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
+  const updateSettings = async (newSettings) => {
+    setSettings(prev => ({ ...prev, ...newSettings }));
+
+    try {
+      await fetch(`${API_BASE}/dashboard`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSettings)
+      });
+    } catch (e) {
+      console.warn('[API Notice] Settings updated locally.');
+    }
   };
 
-  const resetToDefaultCatalog = () => {
-    setProducts(initialProducts.map(p => ({
-      ...p,
-      stock: 20,
-      soldCount: 0,
-      video: null,
-      instagramVideoUrl: ''
-    })));
-  };
-
-  // Admin Auth Actions
   const adminLogin = (password) => {
     if (password === settings.adminPassword || password === 'ChaNish@1724') {
       setIsAdminLoggedIn(true);
@@ -550,10 +360,6 @@ export const StoreProvider = ({ children }) => {
     setIsAdminLoggedIn(false);
   };
 
-  const updateSettings = (newSettings) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
-  };
-
   return (
     <StoreContext.Provider
       value={{
@@ -564,28 +370,20 @@ export const StoreProvider = ({ children }) => {
         customers,
         coupons,
         appliedCoupon,
-        categories,
-        addCategory,
-        deleteCategory,
         settings,
         isAdminLoggedIn,
+        officialCategories: OFFICIAL_CATEGORIES,
         addToCart,
         updateCartQuantity,
         removeFromCart,
         clearCart,
         applyCoupon,
         removeCoupon,
-        addCoupon,
-        deleteCoupon,
-        toggleCouponStatus,
         placeOrder,
-        updateOrderStatus,
         completePOSSale,
         addProduct,
         updateProduct,
         deleteProduct,
-        clearAllProducts,
-        resetToDefaultCatalog,
         adminLogin,
         adminLogout,
         updateSettings
