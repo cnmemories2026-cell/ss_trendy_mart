@@ -6,14 +6,14 @@ const StoreContext = createContext();
 const API_BASE = import.meta.env?.VITE_API_URL || '/api';
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'ss_trendy_mart_products_v8',
-  CART: 'ss_trendy_mart_cart_v8',
-  ORDERS: 'ss_trendy_mart_orders_v8',
-  COUPONS: 'ss_trendy_mart_coupons_v8',
-  APPLIED_COUPON: 'ss_trendy_mart_applied_coupon_v8',
-  POS_SALES: 'ss_trendy_mart_pos_sales_v8',
-  ADMIN_AUTH: 'ss_trendy_mart_admin_auth_v8',
-  SETTINGS: 'ss_trendy_mart_settings_v8'
+  PRODUCTS: 'ss_trendy_mart_products_v9',
+  CART: 'ss_trendy_mart_cart_v9',
+  ORDERS: 'ss_trendy_mart_orders_v9',
+  COUPONS: 'ss_trendy_mart_coupons_v9',
+  APPLIED_COUPON: 'ss_trendy_mart_applied_coupon_v9',
+  POS_SALES: 'ss_trendy_mart_pos_sales_v9',
+  ADMIN_AUTH: 'ss_trendy_mart_admin_auth_v9',
+  SETTINGS: 'ss_trendy_mart_settings_v9'
 };
 
 const INITIAL_COUPONS = [
@@ -23,15 +23,12 @@ const INITIAL_COUPONS = [
 ];
 
 export const StoreProvider = ({ children }) => {
-  // 1. Load Products from localStorage FIRST (Ensures admin edits/prices/names NEVER get deleted on refresh!)
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       } catch (e) {
         console.error(e);
       }
@@ -53,37 +50,16 @@ export const StoreProvider = ({ children }) => {
     };
   });
 
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.ORDERS);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return [];
-  });
-
-  const [posSales, setPosSales] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.POS_SALES);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return [];
-  });
-
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CART);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return [];
-  });
-
+  const [orders, setOrders] = useState([]);
+  const [posSales, setPosSales] = useState([]);
+  const [cart, setCart] = useState([]);
   const [coupons, setCoupons] = useState(INITIAL_COUPONS);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
     return localStorage.getItem(STORAGE_KEYS.ADMIN_AUTH) === 'true';
   });
 
-  // Always Persist Products locally so refreshing never deletes modifications
+  // Local Storage Persistence
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
   }, [products]);
@@ -93,26 +69,24 @@ export const StoreProvider = ({ children }) => {
   }, [settings]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-  }, [orders]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.POS_SALES, JSON.stringify(posSales));
-  }, [posSales]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
-  }, [cart]);
-
-  useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, isAdminLoggedIn ? 'true' : 'false');
   }, [isAdminLoggedIn]);
 
-  // Fetch Central Backend Data on Mount (Only merge if backend returns valid data)
+  // Initial Fetch & Automatic 8-Second Cross-Device Background Sync Polling
+  // (Phone additions/edits automatically appear on Laptop!)
   useEffect(() => {
     fetchProductsFromAPI();
     fetchDashboardFromAPI();
     fetchOrdersFromAPI();
+
+    // Auto-sync polling every 8 seconds so edits made on Phone appear on Laptop automatically!
+    const syncInterval = setInterval(() => {
+      fetchProductsFromAPI();
+      fetchDashboardFromAPI();
+      fetchOrdersFromAPI();
+    }, 8000);
+
+    return () => clearInterval(syncInterval);
   }, []);
 
   const fetchProductsFromAPI = async () => {
@@ -121,21 +95,20 @@ export const StoreProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.data && data.data.length > 0) {
-          // Merge API data with locally stored edits
-          setProducts(prevLocal => {
-            const apiProducts = data.data;
-            if (prevLocal.length === 0) return apiProducts;
-            
-            // Return local state if user has made recent edits, or merge
+          const apiProducts = data.data;
+          setProducts(prev => {
             const map = new Map();
+            // Merge central database items with local items
             apiProducts.forEach(p => map.set(p.id, p));
-            prevLocal.forEach(p => map.set(p.id, p)); // Local edits take priority!
+            prev.forEach(p => {
+              if (!map.has(p.id)) map.set(p.id, p);
+            });
             return Array.from(map.values());
           });
         }
       }
     } catch (e) {
-      // Keep local state on API error
+      // Offline fallback
     }
   };
 
@@ -149,7 +122,7 @@ export const StoreProvider = ({ children }) => {
         }
       }
     } catch (e) {
-      // Keep local settings
+      // Offline fallback
     }
   };
 
@@ -163,7 +136,7 @@ export const StoreProvider = ({ children }) => {
         }
       }
     } catch (e) {
-      // Keep local orders
+      // Offline fallback
     }
   };
 
@@ -311,7 +284,7 @@ export const StoreProvider = ({ children }) => {
     return newBill;
   };
 
-  // Add Product (Persists instantly to LocalStorage + API)
+  // Add Product from Phone or Laptop -> Saves to Central Database API so both devices sync!
   const addProduct = async (productData) => {
     const newId = `prod_${Date.now()}`;
     const newProd = {
@@ -319,7 +292,7 @@ export const StoreProvider = ({ children }) => {
       pdfCode: productData.pdfCode || `CUSTOM-${Date.now().toString().slice(-4)}`,
       name: productData.name,
       category: productData.category || 'Miniature',
-      price: productData.price !== null ? Number(productData.price) : null,
+      price: productData.price ? Number(productData.price) : null,
       image: productData.image,
       video: productData.video || null,
       instagramVideoUrl: productData.instagramVideoUrl || '',
@@ -338,19 +311,22 @@ export const StoreProvider = ({ children }) => {
     });
 
     try {
-      await fetch(`${API_BASE}/products`, {
+      const res = await fetch(`${API_BASE}/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newProd)
       });
+      if (res.ok) {
+        console.log('[Central Sync Success] Product saved to database from device!');
+      }
     } catch (e) {
-      console.warn('[API Notice] Product added locally.');
+      console.warn('[API Notice] Product saved locally.');
     }
 
     return newProd;
   };
 
-  // Update Product Name, Price, Stock, Description (Persists instantly to LocalStorage + API!)
+  // Update Product from Phone or Laptop -> Saves to Central Database API so both devices sync!
   const updateProduct = async (productId, updatedFields) => {
     setProducts(prev => {
       const updated = prev.map(prod => prod.id === productId ? { ...prod, ...updatedFields } : prod);
@@ -359,17 +335,19 @@ export const StoreProvider = ({ children }) => {
     });
 
     try {
-      await fetch(`${API_BASE}/products/${productId}`, {
+      const res = await fetch(`${API_BASE}/products/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedFields)
       });
+      if (res.ok) {
+        console.log('[Central Sync Success] Product update saved to database!');
+      }
     } catch (e) {
-      console.warn('[API Notice] Product updated locally.');
+      console.warn('[API Notice] Product update saved locally.');
     }
   };
 
-  // Delete Product (Persists instantly to LocalStorage + API!)
   const deleteProduct = async (productId) => {
     setProducts(prev => {
       const updated = prev.filter(prod => prod.id !== productId);
@@ -382,7 +360,7 @@ export const StoreProvider = ({ children }) => {
         method: 'DELETE'
       });
     } catch (e) {
-      console.warn('[API Notice] Product deleted locally.');
+      console.warn('[API Notice] Product deleted.');
     }
   };
 

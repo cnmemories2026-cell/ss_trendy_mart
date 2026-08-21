@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Search, Filter, Image, Video, Instagram, ArrowLeft, X, Save, RefreshCw, Layers } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Filter, Image, Video, Instagram, ArrowLeft, X, Save, Layers } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
+import { compressImage } from '../../utils/imageCompressor';
 
 export const AdminProducts = () => {
-  const { products, addProduct, updateProduct, deleteProduct, resetToDefaultCatalog, isAdminLoggedIn, officialCategories } = useStore();
+  const { products, addProduct, updateProduct, deleteProduct, isAdminLoggedIn, officialCategories } = useStore();
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [uploadingStatus, setUploadingStatus] = useState('');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -36,15 +38,19 @@ export const AdminProducts = () => {
 
   if (!isAdminLoggedIn) return null;
 
-  // Image Upload Handler
-  const handleImageChange = (e) => {
+  // Image Upload Handler with Automatic Compression for Mobile Devices
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, image: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      setUploadingStatus('Compressing & Optimizing Photo...');
+      try {
+        const compressedBase64 = await compressImage(file, 800, 800, 0.85);
+        setFormData(prev => ({ ...prev, image: compressedBase64 }));
+        setUploadingStatus('');
+      } catch (err) {
+        console.error(err);
+        setUploadingStatus('Error processing photo');
+      }
     }
   };
 
@@ -111,11 +117,11 @@ export const AdminProducts = () => {
     setIsModalOpen(true);
   };
 
-  // Submit Handler
-  const handleSubmit = (e) => {
+  // Submit Handler (Saves to Central Server so Laptop receives Phone edits!)
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setUploadingStatus('Saving product to Central Database...');
     
-    // Total stock = sum of color variants
     const computedStock = formData.variants && formData.variants.length > 0
       ? formData.variants.reduce((sum, v) => sum + (v.qty || 0), 0)
       : 20;
@@ -133,12 +139,17 @@ export const AdminProducts = () => {
       stock: computedStock
     };
 
-    if (editingProduct) {
-      updateProduct(editingProduct.id, payload);
-    } else {
-      addProduct(payload);
+    try {
+      if (editingProduct) {
+        await updateProduct(editingProduct.id, payload);
+      } else {
+        await addProduct(payload);
+      }
+    } catch (err) {
+      console.error(err);
     }
 
+    setUploadingStatus('');
     setIsModalOpen(false);
   };
 
@@ -213,7 +224,7 @@ export const AdminProducts = () => {
         </div>
       </div>
 
-      {/* Products Table with Color Variant Stock Breakdown */}
+      {/* Products Table */}
       <div className="bg-[#FFFDF9] rounded-3xl border border-brand-200/60 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -237,20 +248,17 @@ export const AdminProducts = () => {
                 return (
                   <tr key={product.id} className="hover:bg-brand-50/50 transition-colors">
                     
-                    {/* Thumbnail */}
                     <td className="py-3 px-4">
                       <div className="w-14 h-14 rounded-2xl overflow-hidden bg-brand-50 border border-brand-200 p-1 flex items-center justify-center">
                         <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain" />
                       </div>
                     </td>
 
-                    {/* Info */}
                     <td className="py-3 px-4">
                       <div className="font-extrabold text-brand-900 text-sm">{product.name}</div>
                       <div className="text-[10px] text-brand-600 font-bold tracking-wider">{product.pdfCode} • {product.category}</div>
                     </td>
 
-                    {/* Media Indicators */}
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1.5">
                         <span className={`p-1.5 rounded-lg ${product.image ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'}`} title="Image uploaded">
@@ -265,7 +273,6 @@ export const AdminProducts = () => {
                       </div>
                     </td>
 
-                    {/* Price */}
                     <td className="py-3 px-4 font-black text-brand-900 text-sm">
                       {product.price !== null && product.price > 0 ? (
                         <span>₹{product.price}</span>
@@ -274,14 +281,11 @@ export const AdminProducts = () => {
                       )}
                     </td>
 
-                    {/* COLOR VARIANT STOCK BREAKDOWN (As shown in Screenshot 1) */}
                     <td className="py-3 px-4">
                       <div className="space-y-1.5 max-w-md">
                         <div className="text-xs font-black text-brand-900">
                           Total: <strong className="text-purple-700">{totalUnits} units</strong>
                         </div>
-                        
-                        {/* Variant Pills */}
                         <div className="flex flex-wrap gap-1.5">
                           {product.variants && product.variants.length > 0 ? (
                             product.variants.map((v, idx) => (
@@ -301,14 +305,12 @@ export const AdminProducts = () => {
                       </div>
                     </td>
 
-                    {/* Availability Status */}
                     <td className="py-3 px-4">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-black inline-flex items-center gap-1 ${totalUnits > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
                         👁 {totalUnits > 0 ? 'Available' : 'Out of Stock'}
                       </span>
                     </td>
 
-                    {/* Actions */}
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
@@ -336,7 +338,7 @@ export const AdminProducts = () => {
         </div>
       </div>
 
-      {/* Add / Edit Product Modal with Color Variant Management */}
+      {/* Add / Edit Product Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-[#FFFDF9] rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-brand-200 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -350,9 +352,14 @@ export const AdminProducts = () => {
               </button>
             </div>
 
+            {uploadingStatus && (
+              <div className="p-3 bg-brand-100 text-brand-900 rounded-xl text-xs font-bold animate-pulse text-center">
+                {uploadingStatus}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-5">
               
-              {/* Name & PDF Code */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-brand-900 uppercase tracking-wider mb-1">Product Name *</label>
@@ -378,7 +385,6 @@ export const AdminProducts = () => {
                 </div>
               </div>
 
-              {/* Category & Price */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-brand-900 uppercase tracking-wider mb-1">Category *</label>
@@ -404,7 +410,7 @@ export const AdminProducts = () => {
                 </div>
               </div>
 
-              {/* COLOR VARIANT STOCK MANAGEMENT (As shown in Screenshot 1) */}
+              {/* Color Variant Stock */}
               <div className="p-4 bg-purple-50/70 rounded-2xl border border-purple-200 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-black text-purple-900 uppercase tracking-wider flex items-center gap-1.5">
@@ -415,7 +421,6 @@ export const AdminProducts = () => {
                   </span>
                 </div>
 
-                {/* Existing Variants list */}
                 <div className="flex flex-wrap gap-2">
                   {formData.variants.map((v, index) => (
                     <div key={index} className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-xl border border-purple-300 text-xs font-extrabold text-purple-900 shadow-sm">
@@ -431,7 +436,6 @@ export const AdminProducts = () => {
                   ))}
                 </div>
 
-                {/* Add New Variant */}
                 <div className="flex items-center gap-2 pt-2 border-t border-purple-200/60">
                   <input
                     type="text"
@@ -457,9 +461,11 @@ export const AdminProducts = () => {
                 </div>
               </div>
 
-              {/* Direct Image Upload */}
+              {/* Direct Image Upload with Automatic Photo Compressor */}
               <div>
-                <label className="block text-xs font-bold text-brand-900 uppercase tracking-wider mb-1">Direct Device Image Upload *</label>
+                <label className="block text-xs font-bold text-brand-900 uppercase tracking-wider mb-1">
+                  Upload Photo from Device (Auto-Optimized for Phone Camera Photos) *
+                </label>
                 <input
                   type="file"
                   accept="image/*"
@@ -475,7 +481,7 @@ export const AdminProducts = () => {
 
               {/* Direct Video Upload */}
               <div>
-                <label className="block text-xs font-bold text-brand-900 uppercase tracking-wider mb-1">Direct Device Video Upload (Optional)</label>
+                <label className="block text-xs font-bold text-brand-900 uppercase tracking-wider mb-1">Upload Video from Device (Optional)</label>
                 <input
                   type="file"
                   accept="video/*"
@@ -519,7 +525,7 @@ export const AdminProducts = () => {
                   type="submit"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-brand-600/25 transition-all"
                 >
-                  <Save className="w-4 h-4" /> Save Product & Stock Breakdown
+                  <Save className="w-4 h-4" /> Save Product & Sync Central Server
                 </button>
               </div>
 
