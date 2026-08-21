@@ -3,8 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingBag, Search, PhoneCall, Menu, X, PackageCheck, Sparkles, Film } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
-// Logo Image URL
-const LOGO_SRC = "file:///C:/Users/chand/.gemini/antigravity/brain/a34f9639-09bb-4036-8430-167eb5d2a829/.user_uploaded/media_1787203872270.jpg";
+// Relative Public Logo Image Path (Fixes Vercel & Production Blank Screen Issues!)
+const LOGO_SRC = "/logo.jpg";
 
 export const Navbar = () => {
   const { cart, settings } = useStore();
@@ -36,7 +36,7 @@ export const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-[#FFFDF9]/95 backdrop-blur-md border-b border-[#EADBC8] shadow-sm">
-      {/* Top Announcement Banner (Logo Theme Colors) */}
+      {/* Top Announcement Banner */}
       <div className="bg-gradient-to-r from-brand-800 via-brand-700 to-brand-900 text-[#FDF8F2] text-xs font-medium py-1.5 px-4 text-center">
         <div className="hidden sm:flex items-center justify-between max-w-7xl mx-auto w-full">
           <span className="flex items-center gap-1.5 font-bold">
@@ -63,14 +63,13 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 gap-4">
           
-          {/* Brand Logo with User Uploaded Image */}
+          {/* Brand Logo with Public Logo Asset */}
           <Link to="/" onClick={handleHomeClick} className="flex items-center gap-3 group">
             <img
               src={LOGO_SRC}
               alt="SS Trendy Mart Logo"
               className="w-14 h-14 rounded-full object-contain shadow-md border-2 border-brand-300 group-hover:scale-105 transition-transform bg-[#FAF5EE]"
               onError={(e) => {
-                // Fallback SVG if local path not direct
                 e.target.onerror = null;
                 e.target.style.display = 'none';
               }}

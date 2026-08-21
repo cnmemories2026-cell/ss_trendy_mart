@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Lock, ArrowRight, AlertCircle, Sparkles, Phone } from 'lucide-react';
+import { Lock, ArrowRight, AlertCircle, Sparkles } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
-const LOGO_SRC = "file:///C:/Users/chand/.gemini/antigravity/brain/a34f9639-09bb-4036-8430-167eb5d2a829/.user_uploaded/media_1787203872270.jpg";
+const LOGO_SRC = "/logo.jpg";
 
 export const AdminLogin = () => {
   const { adminLogin, isAdminLoggedIn, settings } = useStore();
@@ -11,7 +11,6 @@ export const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // If already logged in, redirect to dashboard
   React.useEffect(() => {
     if (isAdminLoggedIn) {
       navigate('/admin/dashboard');

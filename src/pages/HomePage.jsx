@@ -4,7 +4,7 @@ import { ShoppingBag, MessageSquare, Sparkles, ArrowRight, ShieldCheck, Truck, H
 import { useStore } from '../context/StoreContext';
 import { ProductCard } from '../components/ProductCard';
 
-const LOGO_SRC = "file:///C:/Users/chand/.gemini/antigravity/brain/a34f9639-09bb-4036-8430-167eb5d2a829/.user_uploaded/media_1787203872270.jpg";
+const LOGO_SRC = "/logo.jpg";
 
 export const HomePage = () => {
   const { products, settings } = useStore();
@@ -12,7 +12,6 @@ export const HomePage = () => {
   const availableProducts = products.filter(p => p.available !== false);
   const featuredProducts = availableProducts.slice(0, 8);
 
-  // 6 Official User Categories
   const officialCategories = [
     { name: 'Mobile Charm', emoji: '📱', desc: 'Handcrafted mobile straps & charms' },
     { name: 'Bracelet', emoji: '📿', desc: 'Trendy handcrafted beaded bracelets' },
@@ -27,9 +26,8 @@ export const HomePage = () => {
   return (
     <div className="space-y-16 pb-16">
       
-      {/* 1. Hero Section (Hand Crafted Logo Theme Colors) */}
+      {/* 1. Hero Section */}
       <section className="relative overflow-hidden hero-gradient text-[#FDF8F2] py-20 px-4 sm:px-6 lg:px-8 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-2xl mt-4">
-        {/* Background Glows */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#D4A373]/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#8C5221]/20 rounded-full blur-3xl pointer-events-none" />
 
@@ -143,7 +141,7 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 4. INSTAGRAM SECTION (Account: ss_trendy_mart) */}
+      {/* 4. INSTAGRAM SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-r from-brand-800 via-brand-700 to-gold-600 rounded-3xl p-8 sm:p-10 text-[#FDF8F2] shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-left">
