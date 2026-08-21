@@ -1,17 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
 import { initialProducts, OFFICIAL_CATEGORIES } from '../data/initialCatalog';
 
 const StoreContext = createContext();
 
 // Backend API URL (Vercel automatic relative route /api or local port 5000)
 const API_BASE = import.meta.env?.VITE_API_URL || '/api';
-const SOCKET_URL = import.meta.env?.VITE_SOCKET_URL || 'http://localhost:5000';
 
 const STORAGE_KEYS = {
-  CART: 'ss_trendy_mart_cart_v6',
-  APPLIED_COUPON: 'ss_trendy_mart_applied_coupon_v6',
-  ADMIN_AUTH: 'ss_trendy_mart_admin_auth_v6'
+  CART: 'ss_trendy_mart_cart_v7',
+  APPLIED_COUPON: 'ss_trendy_mart_applied_coupon_v7',
+  ADMIN_AUTH: 'ss_trendy_mart_admin_auth_v7'
 };
 
 const INITIAL_COUPONS = [
@@ -47,77 +45,52 @@ export const StoreProvider = ({ children }) => {
     return localStorage.getItem(STORAGE_KEYS.ADMIN_AUTH) === 'true';
   });
 
-  // Fetch Central Database on Mount & Connect Real-Time Sync
+  // Fetch Central Database on Mount & Connect Real-Time Sync Safely
   useEffect(() => {
     fetchProductsFromAPI();
     fetchDashboardFromAPI();
     fetchOrdersFromAPI();
-
-    let socket;
-    try {
-      socket = io(SOCKET_URL, { transports: ['websocket', 'polling'] });
-      
-      socket.on('product:added', (newProduct) => {
-        setProducts(prev => {
-          const exists = prev.some(p => p.id === newProduct.id);
-          if (exists) return prev.map(p => p.id === newProduct.id ? newProduct : p);
-          return [newProduct, ...prev];
-        });
-      });
-
-      socket.on('product:updated', (updatedProduct) => {
-        setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
-      });
-
-      socket.on('product:deleted', ({ id }) => {
-        setProducts(prev => prev.filter(p => p.id !== id));
-      });
-
-      socket.on('dashboard:updated', (newDashboard) => {
-        setSettings(prev => ({ ...prev, ...newDashboard }));
-      });
-    } catch (e) {
-      console.warn('[Socket Notice] Standalone mode.');
-    }
-
-    return () => {
-      if (socket) socket.disconnect();
-    };
   }, []);
 
   const fetchProductsFromAPI = async () => {
     try {
       const res = await fetch(`${API_BASE}/products`);
-      const data = await res.json();
-      if (data.success && data.data && data.data.length > 0) {
-        setProducts(data.data);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.data && data.data.length > 0) {
+          setProducts(data.data);
+        }
       }
     } catch (e) {
-      console.warn('[API Notice] Using catalog fallback.');
+      // Catalog fallback (Prevents blank page!)
     }
   };
 
   const fetchDashboardFromAPI = async () => {
     try {
       const res = await fetch(`${API_BASE}/dashboard`);
-      const data = await res.json();
-      if (data.success && data.data) {
-        setSettings(prev => ({ ...prev, ...data.data }));
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.data) {
+          setSettings(prev => ({ ...prev, ...data.data }));
+        }
       }
     } catch (e) {
-      console.warn('[API Notice] Using settings fallback.');
+      // Settings fallback
     }
   };
 
   const fetchOrdersFromAPI = async () => {
     try {
       const res = await fetch(`${API_BASE}/orders`);
-      const data = await res.json();
-      if (data.success && data.data) {
-        setOrders(data.data);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.data) {
+          setOrders(data.data);
+        }
       }
     } catch (e) {
-      console.warn('[API Notice] Using orders fallback.');
+      // Orders fallback
     }
   };
 
