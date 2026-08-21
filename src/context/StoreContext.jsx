@@ -3,13 +3,17 @@ import { initialProducts, OFFICIAL_CATEGORIES } from '../data/initialCatalog';
 
 const StoreContext = createContext();
 
-// Backend API URL (Vercel automatic relative route /api or local port 5000)
 const API_BASE = import.meta.env?.VITE_API_URL || '/api';
 
 const STORAGE_KEYS = {
-  CART: 'ss_trendy_mart_cart_v7',
-  APPLIED_COUPON: 'ss_trendy_mart_applied_coupon_v7',
-  ADMIN_AUTH: 'ss_trendy_mart_admin_auth_v7'
+  PRODUCTS: 'ss_trendy_mart_products_v8',
+  CART: 'ss_trendy_mart_cart_v8',
+  ORDERS: 'ss_trendy_mart_orders_v8',
+  COUPONS: 'ss_trendy_mart_coupons_v8',
+  APPLIED_COUPON: 'ss_trendy_mart_applied_coupon_v8',
+  POS_SALES: 'ss_trendy_mart_pos_sales_v8',
+  ADMIN_AUTH: 'ss_trendy_mart_admin_auth_v8',
+  SETTINGS: 'ss_trendy_mart_settings_v8'
 };
 
 const INITIAL_COUPONS = [
@@ -19,17 +23,51 @@ const INITIAL_COUPONS = [
 ];
 
 export const StoreProvider = ({ children }) => {
-  const [products, setProducts] = useState(initialProducts);
-  const [settings, setSettings] = useState({
-    storeName: 'SS Trendy Mart',
-    ownerPhone: '9342044060',
-    tagline: 'Hand Crafted • Trendy Products. Easy Shopping.',
-    adminPassword: 'ChaNish@1724',
-    instagramProfileUrl: 'https://instagram.com/ss_trendy_mart'
+  // 1. Load Products from localStorage FIRST (Ensures admin edits/prices/names NEVER get deleted on refresh!)
+  const [products, setProducts] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    return initialProducts;
   });
 
-  const [orders, setOrders] = useState([]);
-  const [posSales, setPosSales] = useState([]);
+  const [settings, setSettings] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    return {
+      storeName: 'SS Trendy Mart',
+      ownerPhone: '9342044060',
+      tagline: 'Hand Crafted • Trendy Products. Easy Shopping.',
+      adminPassword: 'ChaNish@1724',
+      instagramProfileUrl: 'https://instagram.com/ss_trendy_mart'
+    };
+  });
+
+  const [orders, setOrders] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.ORDERS);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    return [];
+  });
+
+  const [posSales, setPosSales] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.POS_SALES);
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    return [];
+  });
 
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.CART);
@@ -45,7 +83,32 @@ export const StoreProvider = ({ children }) => {
     return localStorage.getItem(STORAGE_KEYS.ADMIN_AUTH) === 'true';
   });
 
-  // Fetch Central Database on Mount & Connect Real-Time Sync Safely
+  // Always Persist Products locally so refreshing never deletes modifications
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+  }, [products]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+  }, [settings]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+  }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.POS_SALES, JSON.stringify(posSales));
+  }, [posSales]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, isAdminLoggedIn ? 'true' : 'false');
+  }, [isAdminLoggedIn]);
+
+  // Fetch Central Backend Data on Mount (Only merge if backend returns valid data)
   useEffect(() => {
     fetchProductsFromAPI();
     fetchDashboardFromAPI();
@@ -58,11 +121,21 @@ export const StoreProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.data && data.data.length > 0) {
-          setProducts(data.data);
+          // Merge API data with locally stored edits
+          setProducts(prevLocal => {
+            const apiProducts = data.data;
+            if (prevLocal.length === 0) return apiProducts;
+            
+            // Return local state if user has made recent edits, or merge
+            const map = new Map();
+            apiProducts.forEach(p => map.set(p.id, p));
+            prevLocal.forEach(p => map.set(p.id, p)); // Local edits take priority!
+            return Array.from(map.values());
+          });
         }
       }
     } catch (e) {
-      // Catalog fallback (Prevents blank page!)
+      // Keep local state on API error
     }
   };
 
@@ -76,7 +149,7 @@ export const StoreProvider = ({ children }) => {
         }
       }
     } catch (e) {
-      // Settings fallback
+      // Keep local settings
     }
   };
 
@@ -85,22 +158,14 @@ export const StoreProvider = ({ children }) => {
       const res = await fetch(`${API_BASE}/orders`);
       if (res.ok) {
         const data = await res.json();
-        if (data.success && data.data) {
+        if (data.success && data.data && data.data.length > 0) {
           setOrders(data.data);
         }
       }
     } catch (e) {
-      // Orders fallback
+      // Keep local orders
     }
   };
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
-  }, [cart]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, isAdminLoggedIn ? 'true' : 'false');
-  }, [isAdminLoggedIn]);
 
   const customers = React.useMemo(() => {
     const map = new Map();
@@ -210,6 +275,8 @@ export const StoreProvider = ({ children }) => {
       createdAt: new Date().toISOString()
     };
 
+    setOrders(prev => [newOrder, ...prev]);
+
     try {
       await fetch(`${API_BASE}/orders`, {
         method: 'POST',
@@ -220,7 +287,6 @@ export const StoreProvider = ({ children }) => {
       console.warn('[API Notice] Order saved locally.');
     }
 
-    setOrders(prev => [newOrder, ...prev]);
     clearCart();
     return newOrder;
   };
@@ -245,6 +311,7 @@ export const StoreProvider = ({ children }) => {
     return newBill;
   };
 
+  // Add Product (Persists instantly to LocalStorage + API)
   const addProduct = async (productData) => {
     const newId = `prod_${Date.now()}`;
     const newProd = {
@@ -252,7 +319,7 @@ export const StoreProvider = ({ children }) => {
       pdfCode: productData.pdfCode || `CUSTOM-${Date.now().toString().slice(-4)}`,
       name: productData.name,
       category: productData.category || 'Miniature',
-      price: productData.price ? Number(productData.price) : null,
+      price: productData.price !== null ? Number(productData.price) : null,
       image: productData.image,
       video: productData.video || null,
       instagramVideoUrl: productData.instagramVideoUrl || '',
@@ -264,7 +331,11 @@ export const StoreProvider = ({ children }) => {
       createdAt: new Date().toISOString()
     };
 
-    setProducts(prev => [newProd, ...prev]);
+    setProducts(prev => {
+      const updated = [newProd, ...prev];
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+      return updated;
+    });
 
     try {
       await fetch(`${API_BASE}/products`, {
@@ -279,10 +350,13 @@ export const StoreProvider = ({ children }) => {
     return newProd;
   };
 
+  // Update Product Name, Price, Stock, Description (Persists instantly to LocalStorage + API!)
   const updateProduct = async (productId, updatedFields) => {
-    setProducts(prev =>
-      prev.map(prod => prod.id === productId ? { ...prod, ...updatedFields } : prod)
-    );
+    setProducts(prev => {
+      const updated = prev.map(prod => prod.id === productId ? { ...prod, ...updatedFields } : prod);
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+      return updated;
+    });
 
     try {
       await fetch(`${API_BASE}/products/${productId}`, {
@@ -295,8 +369,13 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
+  // Delete Product (Persists instantly to LocalStorage + API!)
   const deleteProduct = async (productId) => {
-    setProducts(prev => prev.filter(prod => prod.id !== productId));
+    setProducts(prev => {
+      const updated = prev.filter(prod => prod.id !== productId);
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+      return updated;
+    });
 
     try {
       await fetch(`${API_BASE}/products/${productId}`, {
@@ -307,8 +386,17 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
+  const resetToDefaultCatalog = () => {
+    setProducts(initialProducts);
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(initialProducts));
+  };
+
   const updateSettings = async (newSettings) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
+      return updated;
+    });
 
     try {
       await fetch(`${API_BASE}/dashboard`, {
@@ -357,6 +445,7 @@ export const StoreProvider = ({ children }) => {
         addProduct,
         updateProduct,
         deleteProduct,
+        resetToDefaultCatalog,
         adminLogin,
         adminLogout,
         updateSettings
